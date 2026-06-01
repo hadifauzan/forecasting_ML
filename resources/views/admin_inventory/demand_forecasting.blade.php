@@ -90,29 +90,38 @@
 <div class="space-y-6">
 
     {{-- ===== Header ===== --}}
-    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-6 rounded-xl shadow-sm border border-slate-100">
-        <div>
-            <h1 class="text-2xl font-bold text-slate-800 tracking-tight flex items-center gap-3">
-                <span class="w-10 h-10 rounded-lg bg-[#e7e7ff] text-[#696cff] flex items-center justify-center shadow-sm">
-                    <i class="bi bi-cpu text-xl"></i>
+    <div class="relative bg-white/90 backdrop-blur-xl rounded-3xl border border-slate-200/60 shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-6 md:p-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 overflow-hidden">
+        <!-- Abstract Decoration -->
+        <div class="absolute right-0 top-0 w-64 h-64 bg-gradient-to-br from-[#696cff]/10 to-transparent rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none"></div>
+        <div class="absolute left-0 bottom-0 w-48 h-48 bg-gradient-to-tr from-[#71dd37]/10 to-transparent rounded-full blur-3xl -ml-16 -mb-16 pointer-events-none"></div>
+        
+        <div class="relative z-10">
+            <div class="flex flex-col sm:flex-row sm:items-center gap-4 mb-2">
+                <span class="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#696cff] to-[#5f61e6] text-white flex items-center justify-center shadow-lg shadow-[#696cff]/30 shrink-0">
+                    <i class="bi bi-cpu-fill text-3xl"></i>
                 </span>
-                Demand Forecasting
-            </h1>
-            <p class="text-sm text-slate-500 mt-2 max-w-2xl leading-relaxed">
+                <div>
+                    <h1 class="text-3xl font-black text-slate-800 tracking-tight leading-none mb-2">
+                        Demand Forecasting
+                    </h1>
+                    <div id="product-badge" style="display:none;" class="inline-flex items-center gap-2 bg-slate-50 border border-slate-200/80 rounded-lg px-2.5 py-1">
+                        <span class="px-2 py-0.5 rounded-md bg-gradient-to-r from-[#696cff] to-[#5f61e6] text-white text-[9px] font-black uppercase tracking-widest shadow-sm"><i class="bi bi-box-seam-fill mr-1"></i> Terpilih</span>
+                        <span id="product-badge-text" class="text-sm font-bold text-slate-700"></span>
+                    </div>
+                </div>
+            </div>
+            <p class="text-sm text-slate-500 max-w-2xl leading-relaxed mt-4 font-medium">
                 Analisis pintar menggunakan Machine Learning (ARIMA) untuk memprediksi kebutuhan produksi berdasarkan tren historis. Sistem juga memberikan <strong>rekomendasi buffer stock</strong> dan rincian <strong>kebutuhan pembelian bahan baku (BOM)</strong>.
             </p>
         </div>
-        <div class="flex items-center gap-3">
-            <form action="{{ route('admin.inventory.forecasting.run-dynamic') }}" method="POST" id="form-run-ml">
+        
+        <div class="relative z-10 flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto mt-4 md:mt-0">
+            <form action="{{ route('admin.inventory.forecasting.run-dynamic') }}" method="POST" id="form-run-ml" class="w-full sm:w-auto">
                 @csrf
-                <button type="button" onclick="confirmRunMl()" class="px-4 py-2 bg-[#696cff] text-white rounded-lg hover:bg-[#5f61e6] transition-colors shadow-sm shadow-[#696cff]/30 text-sm font-medium flex items-center gap-2">
-                    <i class="bi bi-magic"></i> Jalankan Ulang Kalkulasi ML
+                <button type="button" onclick="confirmRunMl()" class="w-full sm:w-auto px-6 py-3.5 bg-gradient-to-r from-[#696cff] to-[#5f61e6] text-white rounded-xl hover:shadow-[0_8px_20px_rgb(105,108,255,0.4)] hover:-translate-y-1 transition-all duration-300 font-bold text-sm flex items-center justify-center gap-2.5 group">
+                    <i class="bi bi-magic text-lg group-hover:rotate-12 transition-transform"></i> Jalankan Ulang Kalkulasi ML
                 </button>
             </form>
-            <div id="product-badge" class="hidden items-center gap-2 bg-[#e7e7ff] border border-[#696cff]/20 rounded-lg px-4 py-2 text-sm text-[#696cff] font-bold tracking-wide" style="display:none;">
-                <i class="bi bi-box-seam"></i>
-                <span id="product-badge-text"></span>
-            </div>
         </div>
     </div>
 
@@ -233,57 +242,67 @@
             <div id="detail-section" style="display:none;" class="space-y-6">
 
                 {{-- --- Metric Cards --- --}}
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div class="sneat-card p-4 border-b-4 border-[#696cff]">
-                        <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">MAE</p>
-                        <div class="flex items-end justify-between">
-                            <div>
-                                <h4 id="mae-value" class="text-2xl font-extrabold text-slate-800">-</h4>
-                            </div>
-                            <div class="text-[#696cff] bg-[#e7e7ff] p-1.5 rounded text-lg leading-none">
-                                <i class="bi bi-graph-down"></i>
-                            </div>
-                        </div>
-                        <p class="text-[10px] text-slate-400 mt-2">Mean Absolute Error</p>
-                    </div>
-
-                    <div class="sneat-card p-4 border-b-4 border-[#71dd37]">
-                        <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">RMSE</p>
-                        <div class="flex items-end justify-between">
-                            <div>
-                                <h4 id="rmse-value" class="text-2xl font-extrabold text-slate-800">-</h4>
-                            </div>
-                            <div class="text-[#71dd37] bg-[#e8fadf] p-1.5 rounded text-lg leading-none">
-                                <i class="bi bi-bar-chart-line"></i>
-                            </div>
-                        </div>
-                        <p class="text-[10px] text-slate-400 mt-2">Root Mean Sq. Error</p>
-                    </div>
-
-                    <div class="sneat-card p-4 border-b-4 border-[#ffab00]">
-                        <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">MAPE</p>
-                        <div class="flex items-end justify-between">
-                            <div>
-                                <h4 id="mape-value" class="text-2xl font-extrabold text-slate-800">-</h4>
-                            </div>
-                            <div class="text-[#ffab00] bg-[#fff2d6] p-1.5 rounded text-lg leading-none">
-                                <i class="bi bi-percent"></i>
-                            </div>
-                        </div>
-                        <p class="text-[10px] text-slate-400 mt-2">Mean Abs. % Error</p>
-                    </div>
-
-                    <div class="sneat-card p-4 border-b-4 border-[#03c3ec]">
-                        <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">ARIMA Order</p>
-                        <div class="flex items-start justify-between">
-                            <div>
-                                <h4 id="arima-order-value" class="text-lg font-bold font-mono text-[#03c3ec]">-</h4>
-                                <div id="kategori-badge-wrap" class="mt-1">
-                                    <span id="kategori-badge" class="badge-mae">-</span>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-5">
+                    {{-- MAE Card --}}
+                    <div class="relative overflow-hidden bg-white/80 backdrop-blur-md rounded-2xl p-5 border border-slate-200/60 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:-translate-y-1 hover:shadow-[0_8px_30px_rgb(105,108,255,0.12)] transition-all duration-300 group">
+                        <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-[#696cff]/20 to-transparent rounded-bl-full -mr-4 -mt-4 transition-transform group-hover:scale-110 duration-500"></div>
+                        <div class="relative z-10">
+                            <p class="text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 flex items-center gap-1.5"><i class="bi bi-record-circle text-[#696cff]"></i> MAE</p>
+                            <div class="flex items-center justify-between mt-3">
+                                <h4 id="mae-value" class="text-3xl font-black text-slate-800 tracking-tight">-</h4>
+                                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-[#696cff] to-[#5f61e6] text-white flex items-center justify-center shadow-lg shadow-[#696cff]/30 group-hover:rotate-12 transition-transform duration-300">
+                                    <i class="bi bi-graph-down text-xl"></i>
                                 </div>
                             </div>
-                            <div class="text-[#03c3ec] bg-[#d7f5fc] p-1.5 rounded text-lg leading-none">
-                                <i class="bi bi-diagram-3"></i>
+                            <p class="text-[10px] text-slate-400 mt-4 font-medium flex items-center gap-1"><i class="bi bi-info-circle"></i> Mean Absolute Error</p>
+                        </div>
+                    </div>
+
+                    {{-- RMSE Card --}}
+                    <div class="relative overflow-hidden bg-white/80 backdrop-blur-md rounded-2xl p-5 border border-slate-200/60 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:-translate-y-1 hover:shadow-[0_8px_30px_rgb(113,221,55,0.15)] transition-all duration-300 group">
+                        <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-[#71dd37]/20 to-transparent rounded-bl-full -mr-4 -mt-4 transition-transform group-hover:scale-110 duration-500"></div>
+                        <div class="relative z-10">
+                            <p class="text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 flex items-center gap-1.5"><i class="bi bi-record-circle text-[#71dd37]"></i> RMSE</p>
+                            <div class="flex items-center justify-between mt-3">
+                                <h4 id="rmse-value" class="text-3xl font-black text-slate-800 tracking-tight">-</h4>
+                                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-[#71dd37] to-[#5bc12c] text-white flex items-center justify-center shadow-lg shadow-[#71dd37]/30 group-hover:-rotate-12 transition-transform duration-300">
+                                    <i class="bi bi-bar-chart-line text-xl"></i>
+                                </div>
+                            </div>
+                            <p class="text-[10px] text-slate-400 mt-4 font-medium flex items-center gap-1"><i class="bi bi-info-circle"></i> Root Mean Sq. Error</p>
+                        </div>
+                    </div>
+
+                    {{-- MAPE Card --}}
+                    <div class="relative overflow-hidden bg-white/80 backdrop-blur-md rounded-2xl p-5 border border-slate-200/60 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:-translate-y-1 hover:shadow-[0_8px_30px_rgb(255,171,0,0.15)] transition-all duration-300 group">
+                        <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-[#ffab00]/20 to-transparent rounded-bl-full -mr-4 -mt-4 transition-transform group-hover:scale-110 duration-500"></div>
+                        <div class="relative z-10">
+                            <p class="text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 flex items-center gap-1.5"><i class="bi bi-record-circle text-[#ffab00]"></i> MAPE</p>
+                            <div class="flex items-center justify-between mt-3">
+                                <h4 id="mape-value" class="text-3xl font-black text-slate-800 tracking-tight">-</h4>
+                                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-[#ffab00] to-[#e09600] text-white flex items-center justify-center shadow-lg shadow-[#ffab00]/30 group-hover:rotate-12 transition-transform duration-300">
+                                    <i class="bi bi-percent text-xl"></i>
+                                </div>
+                            </div>
+                            <p class="text-[10px] text-slate-400 mt-4 font-medium flex items-center gap-1"><i class="bi bi-info-circle"></i> Mean Abs. % Error</p>
+                        </div>
+                    </div>
+
+                    {{-- ARIMA Order Card --}}
+                    <div class="relative overflow-hidden bg-white/80 backdrop-blur-md rounded-2xl p-5 border border-slate-200/60 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:-translate-y-1 hover:shadow-[0_8px_30px_rgb(3,195,236,0.15)] transition-all duration-300 group">
+                        <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-[#03c3ec]/20 to-transparent rounded-bl-full -mr-4 -mt-4 transition-transform group-hover:scale-110 duration-500"></div>
+                        <div class="relative z-10">
+                            <p class="text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 flex items-center gap-1.5"><i class="bi bi-record-circle text-[#03c3ec]"></i> ARIMA Order</p>
+                            <div class="flex items-center justify-between mt-3">
+                                <div>
+                                    <h4 id="arima-order-value" class="text-2xl font-black font-mono text-slate-800 tracking-tight">-</h4>
+                                    <div id="kategori-badge-wrap" class="mt-1.5">
+                                        <span id="kategori-badge" class="badge-mae">-</span>
+                                    </div>
+                                </div>
+                                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-[#03c3ec] to-[#02a9cd] text-white flex items-center justify-center shadow-lg shadow-[#03c3ec]/30 group-hover:-rotate-12 transition-transform duration-300">
+                                    <i class="bi bi-diagram-3 text-xl"></i>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -324,74 +343,99 @@
     <div id="detail-section-bottom" style="display:none;" class="space-y-6">
         
         {{-- --- Rekomendasi: Buffer Stock & ROP --- --}}
-        <div class="sneat-card">
-            <div class="px-6 py-5 border-b border-slate-100">
-                <h3 class="text-base font-bold text-slate-800 flex items-center gap-2 mb-1">
-                    <span class="w-8 h-8 rounded bg-[#e8fadf] text-[#71dd37] flex items-center justify-center"><i class="bi bi-shield-check"></i></span>
-                    Rekomendasi Inventory
-                </h3>
-                <p class="text-xs text-slate-500 pl-10">
-                    Dihitung otomatis dari pola permintaan aktual. Rumus: <code class="bg-slate-100 text-[#696cff] px-1.5 py-0.5 rounded font-mono text-[11px]">(Max Stok Keluar - Avg Stok Keluar) × Max Lead Time</code>
-                </p>
+        <div class="bg-white/90 backdrop-blur-xl rounded-2xl border border-slate-200/60 shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)]">
+            <div class="px-6 py-5 border-b border-slate-100 bg-gradient-to-r from-slate-50/50 to-white flex items-center justify-between">
+                <div>
+                    <h3 class="text-lg font-bold text-slate-800 flex items-center gap-3 mb-1.5">
+                        <span class="w-10 h-10 rounded-xl bg-gradient-to-br from-[#71dd37] to-[#5bc12c] text-white flex items-center justify-center shadow-lg shadow-[#71dd37]/30"><i class="bi bi-shield-check"></i></span>
+                        Rekomendasi Inventory
+                    </h3>
+                    <p class="text-xs text-slate-500 pl-14">
+                        Dihitung otomatis dari pola permintaan. Rumus: <code class="bg-slate-100 text-[#696cff] px-2 py-1 rounded-md font-mono text-[11px] shadow-sm">(Max Out - Avg Out) × Max Lead Time</code>
+                    </p>
+                </div>
             </div>
             <div class="p-6">
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
-                    <div>
-                        <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Avg Daily Out</p>
-                        <p class="text-3xl font-extrabold text-slate-800 mb-1" id="rec-avg">-</p>
-                        <p class="text-[11px] text-slate-400">unit / hari</p>
+                    <div class="group p-4 rounded-xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100">
+                        <div class="flex items-center gap-2 mb-3">
+                            <span class="w-7 h-7 rounded-lg bg-slate-200 text-slate-600 flex items-center justify-center text-xs group-hover:scale-110 transition-transform"><i class="bi bi-calendar3"></i></span>
+                            <p class="text-[11px] font-bold text-slate-500 uppercase tracking-widest">Avg Daily Out</p>
+                        </div>
+                        <div class="flex items-baseline gap-1.5">
+                            <p class="text-4xl font-black text-slate-800 tracking-tight" id="rec-avg">-</p>
+                            <span class="text-[11px] text-slate-400 font-medium">unit / hr</span>
+                        </div>
                     </div>
-                    <div class="pl-0 md:pl-6 border-none md:border-l border-slate-100">
-                        <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Buffer Stock</p>
-                        <p class="text-3xl font-extrabold text-[#696cff] mb-1" id="rec-buffer">-</p>
-                        <p class="text-[11px] text-slate-400">unit pengaman (Max-Avg)×7</p>
+                    <div class="group p-4 rounded-xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100 relative">
+                        <div class="hidden md:block absolute left-0 top-1/4 bottom-1/4 w-px bg-slate-100"></div>
+                        <div class="flex items-center gap-2 mb-3">
+                            <span class="w-7 h-7 rounded-lg bg-[#e7e7ff] text-[#696cff] flex items-center justify-center text-xs group-hover:scale-110 transition-transform"><i class="bi bi-layers"></i></span>
+                            <p class="text-[11px] font-bold text-slate-500 uppercase tracking-widest">Buffer Stock</p>
+                        </div>
+                        <div class="flex items-baseline gap-1.5">
+                            <p class="text-4xl font-black text-[#696cff] tracking-tight" id="rec-buffer">-</p>
+                            <span class="text-[11px] text-slate-400 font-medium">unit pengaman</span>
+                        </div>
                     </div>
-                    <div class="pl-0 md:pl-6 border-none md:border-l border-slate-100">
-                        <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Safety Stock</p>
-                        <p class="text-3xl font-extrabold text-[#ffab00] mb-1" id="rec-safety">-</p>
-                        <p class="text-[11px] text-slate-400">unit (Z × σ × √LT)</p>
+                    <div class="group p-4 rounded-xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100 relative">
+                        <div class="hidden md:block absolute left-0 top-1/4 bottom-1/4 w-px bg-slate-100"></div>
+                        <div class="flex items-center gap-2 mb-3">
+                            <span class="w-7 h-7 rounded-lg bg-[#fff2d6] text-[#ffab00] flex items-center justify-center text-xs group-hover:scale-110 transition-transform"><i class="bi bi-shield-fill-check"></i></span>
+                            <p class="text-[11px] font-bold text-slate-500 uppercase tracking-widest">Safety Stock</p>
+                        </div>
+                        <div class="flex items-baseline gap-1.5">
+                            <p class="text-4xl font-black text-[#ffab00] tracking-tight" id="rec-safety">-</p>
+                            <span class="text-[11px] text-slate-400 font-medium">Z × σ × √LT</span>
+                        </div>
                     </div>
-                    <div class="pl-0 md:pl-6 border-none md:border-l border-slate-100">
-                        <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Reorder Point</p>
-                        <p class="text-3xl font-extrabold text-[#71dd37] mb-1" id="rec-rop">-</p>
-                        <p class="text-[11px] text-slate-400">unit (Avg×LT + Safety)</p>
+                    <div class="group p-4 rounded-xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100 relative">
+                        <div class="hidden md:block absolute left-0 top-1/4 bottom-1/4 w-px bg-slate-100"></div>
+                        <div class="flex items-center gap-2 mb-3">
+                            <span class="w-7 h-7 rounded-lg bg-[#e8fadf] text-[#71dd37] flex items-center justify-center text-xs group-hover:scale-110 transition-transform"><i class="bi bi-cart-check-fill"></i></span>
+                            <p class="text-[11px] font-bold text-slate-500 uppercase tracking-widest">Reorder Point</p>
+                        </div>
+                        <div class="flex items-baseline gap-1.5">
+                            <p class="text-4xl font-black text-[#71dd37] tracking-tight" id="rec-rop">-</p>
+                            <span class="text-[11px] text-slate-400 font-medium">titik pesan</span>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
         {{-- --- Analisis Kebutuhan Manajemen (Bulan Depan) --- --}}
-        <div class="sneat-card">
-            <div class="px-6 py-5 border-b border-slate-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div class="bg-white/90 backdrop-blur-xl rounded-2xl border border-slate-200/60 shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)]">
+            <div class="px-6 py-5 border-b border-slate-100 bg-gradient-to-r from-slate-50/50 to-white flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
-                    <h3 class="text-base font-bold text-slate-800 flex items-center gap-2">
-                        <span class="text-[#696cff]"><i class="bi bi-journal-check"></i></span>
+                    <h3 class="text-lg font-bold text-slate-800 flex items-center gap-3 mb-1.5">
+                        <span class="w-10 h-10 rounded-xl bg-gradient-to-br from-[#696cff] to-[#5f61e6] text-white flex items-center justify-center shadow-lg shadow-[#696cff]/30"><i class="bi bi-journal-check"></i></span>
                         Analisis Kebutuhan Manajemen (Bulan Depan)
                     </h3>
-                    <p class="text-xs text-slate-500 mt-1">Prediksi pengadaan bahan baku berdasarkan Bill of Materials (BOM).</p>
+                    <p class="text-xs text-slate-500 pl-14 mt-1">Prediksi pengadaan bahan baku berdasarkan Bill of Materials (BOM) & peramalan terbaru.</p>
                 </div>
                 <div class="flex items-center gap-3">
-                    <a href="#" id="btn-produce-forecast" class="px-4 py-2 bg-[#71dd37] text-white rounded-lg hover:bg-[#65c732] transition-colors shadow-sm font-medium text-xs flex items-center gap-2" style="display:none;">
-                        <i class="bi bi-play-circle text-sm"></i> Produksi Sekarang
+                    <a href="#" id="btn-produce-forecast" class="px-4 py-2 bg-gradient-to-r from-[#71dd37] to-[#5bc12c] text-white rounded-lg hover:shadow-lg hover:-translate-y-0.5 hover:shadow-[#71dd37]/40 transition-all font-medium text-xs flex items-center gap-2" style="display:none;">
+                        <i class="bi bi-play-circle-fill text-sm"></i> Produksi Sekarang
                     </a>
-                    <div class="bg-[#e7e7ff] text-[#696cff] rounded-lg px-4 py-2 border border-[#696cff]/20 flex items-center gap-2">
-                        <i class="bi bi-box-seam font-bold"></i>
-                        <span class="text-xs font-semibold">Total Target Produksi: <strong id="mgt-target-finished" class="text-base font-extrabold ml-1">-</strong> Unit</span>
+                    <div class="bg-white shadow-sm text-[#696cff] rounded-lg px-5 py-2.5 border border-slate-200/60 flex items-center gap-3">
+                        <i class="bi bi-box-seam-fill text-xl text-[#696cff]/80"></i>
+                        <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wide">Target Produksi<br><strong id="mgt-target-finished" class="text-xl font-black text-slate-800 tracking-tight leading-none">-</strong> <span class="lowercase font-medium text-slate-400">Unit</span></span>
                     </div>
                 </div>
             </div>
             <div class="p-0 overflow-x-auto">
                 <table class="w-full text-left border-collapse text-sm text-slate-600">
-                    <thead class="bg-slate-50/50 border-b border-slate-100 text-slate-500 uppercase tracking-wider text-xs">
+                    <thead class="bg-slate-50 border-b border-slate-100 text-slate-500 uppercase tracking-widest text-[10px] font-bold">
                         <tr>
-                            <th class="px-6 py-4 font-semibold">Bahan Baku</th>
-                            <th class="px-6 py-4 font-semibold text-right">Keb./Unit</th>
-                            <th class="px-6 py-4 font-semibold text-right">Total Keb.</th>
-                            <th class="px-6 py-4 font-semibold text-right">Stok Saat Ini</th>
-                            <th class="px-6 py-4 font-semibold text-right text-[#696cff]">Rekomendasi Beli</th>
-                            <th class="px-6 py-4 font-semibold text-right">Est. Harga</th>
-                            <th class="px-6 py-4 font-semibold text-right">Total Biaya</th>
-                            <th class="px-6 py-4 font-semibold text-center">Status</th>
+                            <th class="px-6 py-4">Bahan Baku</th>
+                            <th class="px-6 py-4 text-right">Keb./Unit</th>
+                            <th class="px-6 py-4 text-right">Total Keb.</th>
+                            <th class="px-6 py-4 text-right">Stok Saat Ini</th>
+                            <th class="px-6 py-4 text-right text-[#696cff]">Rekomendasi Beli</th>
+                            <th class="px-6 py-4 text-right">Est. Harga</th>
+                            <th class="px-6 py-4 text-right">Total Biaya</th>
+                            <th class="px-6 py-4 text-center">Status</th>
                         </tr>
                     </thead>
                     <tbody id="mgt-raw-materials-body" class="divide-y divide-slate-100">
