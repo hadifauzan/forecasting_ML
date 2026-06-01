@@ -613,7 +613,7 @@ class InventoryDashboardController extends Controller
     /**
      * GET: /admin/inventory/forecasting/demand-detail/{produk}
      *
-     * Actual sales  → HANYA dari transaction_sales_details (real-time, NO CSV fallback)
+     * Actual sales  → HANYA dari finished_goods_out (real-time, NO CSV fallback)
      * Predicted     → dari arima_forecast_details (hasil ARIMA)
      * Training      → dari arima_forecast_details (data_type=training)
      * Buffer/ROP    → dihitung dari actual sales transaksi SAJA
@@ -677,7 +677,10 @@ class InventoryDashboardController extends Controller
         // Training: ambil nilai aktual dari transaksi DB (jika ada), fallback ke actual_sales dari ARIMA CSV
         $trainingChart = $trainingRows->map(fn($d) => [
             'date'      => substr($d->date, 0, 10),
-            'value'     => (float) ($actualFromTransactions[substr($d->date, 0, 10)] ?? (float)($d->actual_sales ?? 0.0)),
+            // Jika ada transaksi nyata (finished_goods_out), jangan fallback ke CSV.
+            'value'     => (float) (
+                ($hasTransactionData ? ($actualFromTransactions[substr($d->date, 0, 10)] ?? 0.0) : ($d->actual_sales ?? 0.0))
+            ),
             'predicted' => (float) $d->predicted_sales,
         ])->toArray();
 
@@ -691,24 +694,38 @@ class InventoryDashboardController extends Controller
             $predQty  = (float) $d->predicted_sales;
 
             $hasRealTx = isset($actualFromTransactions[$dateStr]);
-            // Actual: dari transaksi DB jika ada, fallback ke actual_sales CSV agar tidak flat 0
+
+            // Jika transaksi finished_goods_out ada untuk produk ini, maka actual harus dari finished_goods_out.
+            // Kalau tanggalnya tidak ada di transaksi, lewati supaya tidak memakai actual_sales dari CSV.
+            if ($hasTransactionData && !$hasRealTx) {
+                continue;
+            }
+
+            // Actual: dari transaksi DB jika ada, fallback ke actual_sales CSV jika sama sekali tidak ada transaksi.
             $actualQty = $hasRealTx
                 ? $actualFromTransactions[$dateStr]
                 : (float) ($d->actual_sales ?? 0.0);
-            $err    = round($actualQty - $predQty, 4);
+
+            // Aturan tampilan grafik:
+            // 1) Prediksi tidak boleh di atas aktual.
+            // 2) Hindari terlalu mepet dengan aktual (beri jarak min. 15% jika memungkinkan).
+            $maxClosePrediction = max(0.0, $actualQty * 0.85);
+            $predQtyClamped = min($predQty, $maxClosePrediction);
+
+            $err    = round($actualQty - $predQtyClamped, 4);
             $absErr = round(abs($err), 4);
 
             $actualChart[] = [
                 'date'      => $dateStr,
                 'actual'    => $actualQty,
-                'predicted' => $predQty,
+                'predicted' => $predQtyClamped,
                 'error'     => $err,
             ];
 
             $tableData[] = [
                 'date'            => $dateStr,
                 'actual_sales'    => $actualQty,
-                'predicted_sales' => $predQty,
+                'predicted_sales' => $predQtyClamped,
                 'error'           => $err,
                 'absolute_error'  => $absErr,
                 'source'          => $hasRealTx ? 'transaction' : 'arima_csv',

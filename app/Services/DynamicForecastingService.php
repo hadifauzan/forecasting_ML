@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use App\Models\FinishedGoodsIn;
 use App\Models\MasterItem;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -11,31 +10,149 @@ use Illuminate\Support\Facades\Storage;
 
 class DynamicForecastingService
 {
+    /**
+     * Ensure every master item has minimal forecast rows,
+     * so UI does not mark it as "no ARIMA data".
+     */
+    protected function ensureFallbackForecastForMissingProducts(): void
+    {
+        $now = now();
+
+        $masterItems = DB::table('master_items')
+            ->whereNotNull('code_item')
+            ->whereNotNull('item_id')
+            ->select('item_id', 'code_item')
+            ->get();
+
+        if ($masterItems->isEmpty()) {
+            return;
+        }
+
+        $existingSummary = DB::table('arima_forecast_summaries')
+            ->pluck('produk')
+            ->flip()
+            ->toArray();
+
+        foreach ($masterItems as $item) {
+            $produk = (string) $item->code_item;
+            if (isset($existingSummary[$produk])) {
+                continue;
+            }
+
+            $txRows = DB::table('finished_goods_out')
+                ->where('item_id', $item->item_id)
+                ->whereNotNull('out_date')
+                ->whereNull('deleted_at')
+                ->select(
+                    DB::raw('DATE(out_date) as tx_date'),
+                    DB::raw('SUM(qty_out) as total_qty')
+                )
+                ->groupBy(DB::raw('DATE(out_date)'))
+                ->orderBy('tx_date', 'asc')
+                ->get();
+
+            $series = [];
+            if ($txRows->isEmpty()) {
+                // No demand history at all -> keep minimal zero baseline (30 hari)
+                $start = $now->copy()->subDays(29);
+                for ($i = 0; $i < 30; $i++) {
+                    $series[$start->copy()->addDays($i)->format('Y-m-d')] = 0.0;
+                }
+            } else {
+                $txMap = [];
+                foreach ($txRows as $row) {
+                    $txMap[$row->tx_date] = (float) $row->total_qty;
+                }
+
+                $start = Carbon::parse($txRows->first()->tx_date);
+                $end   = Carbon::parse($txRows->last()->tx_date);
+                $cursor = $start->copy();
+                while ($cursor->lte($end)) {
+                    $dateStr = $cursor->format('Y-m-d');
+                    $series[$dateStr] = (float) ($txMap[$dateStr] ?? 0.0);
+                    $cursor->addDay();
+                }
+            }
+
+            $values = array_values($series);
+            $avg = count($values) > 0 ? (array_sum($values) / count($values)) : 0.0;
+
+            DB::table('arima_forecast_summaries')->insert([
+                'produk'          => $produk,
+                'arima_order'     => '0,0,0',
+                'mae'             => 0.0,
+                'rmse'            => 0.0,
+                'mape_percentage' => 0.0,
+                'stationary'      => 1,
+                'adf_p_value'     => 0.0,
+                'kategori_mae'    => 'rendah',
+                'created_at'      => $now,
+                'updated_at'      => $now,
+            ]);
+
+            $detailBatch = [];
+            foreach ($series as $dateStr => $actualQty) {
+                $predicted = min($actualQty, $avg);
+                $detailBatch[] = [
+                    'produk'          => $produk,
+                    'date'            => $dateStr,
+                    'actual_sales'    => round($actualQty, 4),
+                    'predicted_sales' => round($predicted, 4),
+                    'data_type'       => 'actual',
+                    'created_at'      => $now,
+                    'updated_at'      => $now,
+                ];
+            }
+
+            // Minimal future forecast (30 hari) untuk kebutuhan manajemen.
+            $futureStart = count($series) > 0
+                ? Carbon::parse(array_key_last($series))->addDay()
+                : $now->copy();
+
+            for ($i = 0; $i < 30; $i++) {
+                $detailBatch[] = [
+                    'produk'          => $produk,
+                    'date'            => $futureStart->copy()->addDays($i)->format('Y-m-d'),
+                    'actual_sales'    => 0.0,
+                    'predicted_sales' => round(max(0.0, $avg), 4),
+                    'data_type'       => 'forecast',
+                    'created_at'      => $now,
+                    'updated_at'      => $now,
+                ];
+            }
+
+            if (!empty($detailBatch)) {
+                DB::table('arima_forecast_details')->insert($detailBatch);
+            }
+        }
+    }
+
     public function runDynamicForecast()
     {
         // Increase maximum execution time to 5 minutes to allow Python ARIMA optimization for multiple products
         set_time_limit(300);
 
         try {
-            Log::info("Starting dynamic forecast based on FinishedGoodsIn...");
+            Log::info("Starting dynamic forecast based on finished_goods_out (demand)...");
             
             // 1. Export Data to CSV
-            $query = DB::table('finished_goods_in')
-                ->join('master_items', 'finished_goods_in.item_id', '=', 'master_items.item_id')
+            $query = DB::table('finished_goods_out')
+                ->join('master_items', 'finished_goods_out.item_id', '=', 'master_items.item_id')
                 ->select(
-                    DB::raw('DATE(finished_goods_in.received_date) as date'),
+                    DB::raw('DATE(finished_goods_out.out_date) as date'),
                     'master_items.code_item as produk',
-                    DB::raw('SUM(finished_goods_in.qty_received) as qty')
+                    DB::raw('SUM(finished_goods_out.qty_out) as qty')
                 )
-                ->whereNotNull('finished_goods_in.received_date')
-                ->groupBy(DB::raw('DATE(finished_goods_in.received_date)'), 'master_items.code_item')
+                ->whereNotNull('finished_goods_out.out_date')
+                ->whereNull('finished_goods_out.deleted_at')
+                ->groupBy(DB::raw('DATE(finished_goods_out.out_date)'), 'master_items.code_item')
                 ->get();
             
             if ($query->isEmpty()) {
-                Log::warning("No data found in FinishedGoodsIn for forecasting.");
+                Log::warning("No data found in finished_goods_out for forecasting.");
                 return [
                     'success' => false,
-                    'message' => 'Tidak ada data histori produksi untuk peramalan.'
+                    'message' => 'Tidak ada data histori stok keluar (finished goods out) untuk peramalan.'
                 ];
             }
             
@@ -74,10 +191,25 @@ class DynamicForecastingService
             
             // 3. Import Results
             DB::beginTransaction();
-            
-            // Clear old data (using delete() instead of truncate() for database transaction safety and rollback capability)
-            DB::table('arima_forecast_summaries')->delete();
-            DB::table('arima_forecast_details')->delete();
+
+            // Replace data only for recalculated products, so seeded CSV data for
+            // other products is preserved.
+            $recalculatedProducts = collect($query)
+                ->pluck('produk')
+                ->filter()
+                ->unique()
+                ->values()
+                ->toArray();
+
+            if (!empty($recalculatedProducts)) {
+                DB::table('arima_forecast_summaries')
+                    ->whereIn('produk', $recalculatedProducts)
+                    ->delete();
+
+                DB::table('arima_forecast_details')
+                    ->whereIn('produk', $recalculatedProducts)
+                    ->delete();
+            }
             
             // Import Summary
             if (($handle = fopen($summaryCsv, "r")) !== FALSE) {
@@ -128,6 +260,9 @@ class DynamicForecastingService
                 }
                 fclose($handle);
             }
+
+            // Ensure every product has ARIMA rows, even if Python skipped it.
+            $this->ensureFallbackForecastForMissingProducts();
             
             DB::commit();
             Log::info("Dynamic forecasting completed successfully.");

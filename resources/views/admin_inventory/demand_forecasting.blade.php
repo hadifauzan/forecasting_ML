@@ -1108,7 +1108,6 @@ document.addEventListener('DOMContentLoaded', function() {
 @endsection
 
 @push('modals')
-{{-- ===== MODAL: Konfirmasi Kalkulasi ML (Pure Tailwind) ===== --}}
 <div id="modalConfirmMl"
      class="fixed inset-0 z-[9999] flex items-center justify-center hidden"
      style="background: rgba(15,23,42,0.45); backdrop-filter: blur(6px);">
@@ -1151,7 +1150,6 @@ document.addEventListener('DOMContentLoaded', function() {
     </div>
 </div>
 
-{{-- ===== MODAL: Loading ML (Pure Tailwind) ===== --}}
 <div id="modalLoadingMl"
      class="fixed inset-0 z-[9999] flex items-center justify-center hidden"
      style="background: rgba(15,23,42,0.45); backdrop-filter: blur(6px);">
