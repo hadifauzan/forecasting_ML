@@ -12,7 +12,7 @@ class MasterCustomerTypeSeeder extends Seeder
      */
     public function run(): void
     {
-        DB::table('master_customers_types')->insert([
+        $types = [
             [
                 'customer_type_id' => 1,
                 'name_customer_type' => 'Regular Customer',
@@ -41,6 +41,13 @@ class MasterCustomerTypeSeeder extends Seeder
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
-        ]);
+        ];
+
+        foreach ($types as $type) {
+            DB::table('master_customers_types')->updateOrInsert(
+                ['customer_type_id' => $type['customer_type_id']],
+                $type
+            );
+        }
     }
 }

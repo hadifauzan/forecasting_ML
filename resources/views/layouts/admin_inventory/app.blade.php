@@ -152,5 +152,8 @@
             }, 3000);
         };
     </script>
+
+    {{-- Page-level modals (pushed from child views to ensure body-level rendering) --}}
+    @stack('modals')
 </body>
 </html>

@@ -40,6 +40,11 @@ class MasterCategoryArticleSeeder extends Seeder
             ]
         ];
 
-        DB::table('master_category_articles')->insert($categoryArticles);
+        foreach ($categoryArticles as $cat) {
+            DB::table('master_category_articles')->updateOrInsert(
+                ['category_id' => $cat['category_id']],
+                $cat
+            );
+        }
     }
 }

@@ -583,7 +583,10 @@ class MasterItemSeeder extends Seeder
         ];
 
         foreach ($items as $item) {
-            DB::table('master_items')->insert($item);
+            DB::table('master_items')->updateOrInsert(
+                ['code_item' => $item['code_item']],
+                $item
+            );
         }
 
         // Insert ke master_items_details untuk harga jual berdasarkan customer type
@@ -672,10 +675,16 @@ class MasterItemSeeder extends Seeder
      ];
 
         foreach ($itemDetails as $detail) {
-            DB::table('master_items_details')->insert(array_merge($detail, [
-                'created_at' => now(),
-                'updated_at' => now()
-            ]));
+            DB::table('master_items_details')->updateOrInsert(
+                [
+                    'item_id' => $detail['item_id'],
+                    'customer_type_id' => $detail['customer_type_id']
+                ],
+                array_merge($detail, [
+                    'created_at' => now(),
+                    'updated_at' => now()
+                ])
+            );
         }
 
         // Insert ke master_items_stock untuk stok
@@ -719,10 +728,16 @@ class MasterItemSeeder extends Seeder
         ];
 
         foreach ($stockData as $stock) {
-            DB::table('master_items_stock')->insert(array_merge($stock, [
-                'created_at' => now(),
-                'updated_at' => now()
-            ]));
+            DB::table('master_items_stock')->updateOrInsert(
+                [
+                    'item_id' => $stock['item_id'],
+                    'inventory_id' => $stock['inventory_id']
+                ],
+                array_merge($stock, [
+                    'created_at' => now(),
+                    'updated_at' => now()
+                ])
+            );
         }
 
         // Insert ke master_items_categories untuk kategori produk
@@ -780,10 +795,16 @@ class MasterItemSeeder extends Seeder
         ];
 
         foreach ($categoryData as $category) {
-            DB::table('master_items_categories')->insert(array_merge($category, [
-                'created_at' => now(),
-                'updated_at' => now()
-            ]));
+            DB::table('master_items_categories')->updateOrInsert(
+                [
+                    'categories_id' => $category['categories_id'],
+                    'item_id' => $category['item_id']
+                ],
+                array_merge($category, [
+                    'created_at' => now(),
+                    'updated_at' => now()
+                ])
+            );
         }
 
         // Update sellingprice_item in master_items table using customer_type_id = 1 (Retail) from master_items_details

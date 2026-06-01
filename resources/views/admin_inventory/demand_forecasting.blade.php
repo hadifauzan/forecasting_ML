@@ -84,8 +84,6 @@
         display: inline-block; padding: 2px 12px; border-radius: 99px;
         font-size: 11px; font-weight: 700; text-transform: capitalize;
     }
-    
-    /* ===== Chart container ===== */
     #forecast-chart-wrap { position: relative; height: 340px; }
 </style>
 
@@ -104,7 +102,7 @@
                 Analisis pintar menggunakan Machine Learning (ARIMA) untuk memprediksi kebutuhan produksi berdasarkan tren historis. Sistem juga memberikan <strong>rekomendasi buffer stock</strong> dan rincian <strong>kebutuhan pembelian bahan baku (BOM)</strong>.
             </p>
         </div>
-        <!-- <div class="flex items-center gap-3">
+        <div class="flex items-center gap-3">
             <form action="{{ route('admin.inventory.forecasting.run-dynamic') }}" method="POST" id="form-run-ml">
                 @csrf
                 <button type="button" onclick="confirmRunMl()" class="px-4 py-2 bg-[#696cff] text-white rounded-lg hover:bg-[#5f61e6] transition-colors shadow-sm shadow-[#696cff]/30 text-sm font-medium flex items-center gap-2">
@@ -115,7 +113,7 @@
                 <i class="bi bi-box-seam"></i>
                 <span id="product-badge-text"></span>
             </div>
-        </div> -->
+        </div>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -512,8 +510,6 @@
             </div>
         </div>
 
-    </div>
-
 </div>
 
 <script>
@@ -831,7 +827,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     label: 'Stok Keluar Aktual',
                     data: actualVals,
                     borderColor: '#f97316',
-                    backgroundColor: '#f97316',
+                    backgroundColor: 'rgba(249,115,22,0.02)',
                     borderWidth: 2.5,
                     tension: 0.35,
                     fill: false,
@@ -849,7 +845,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     label: 'Prediksi Stok Keluar',
                     data: predVals,
                     borderColor: '#22c55e',
-                    backgroundColor: '#22c55e',
+                    backgroundColor: 'rgba(34,197,94,0.02)',
                     borderWidth: 2.5,
                     borderDash: [6, 4],
                     tension: 0.35,
@@ -900,36 +896,43 @@ document.addEventListener('DOMContentLoaded', function() {
                     label: 'Data Training (Stok Keluar)',
                     data: trainVals,
                     borderColor: '#94a3b8',
-                    backgroundColor: 'rgba(148,163,184,.08)',
+                    backgroundColor: 'rgba(148,163,184,.04)',
                     borderWidth: 1.5,
                     tension: 0.3,
                     fill: true,
                     pointRadius: 0,
+                    pointHoverRadius: 5,
                     spanGaps: false,
                 },
                 {
                     label: 'Stok Keluar Aktual',
                     data: actualVals,
                     borderColor: '#f97316',
-                    backgroundColor: 'rgba(249,115,22,.1)',
+                    backgroundColor: 'rgba(249,115,22,.02)',
                     borderWidth: 2.5,
                     tension: 0.3,
                     fill: false,
-                    pointRadius: 2,
-                    pointHoverRadius: 5,
+                    pointRadius: 3,
+                    pointBackgroundColor: '#fff',
+                    pointBorderColor: '#f97316',
+                    pointBorderWidth: 1.5,
+                    pointHoverRadius: 6,
                     spanGaps: false,
                 },
                 {
                     label: 'Prediksi Stok Keluar',
                     data: predVals,
                     borderColor: '#22c55e',
-                    backgroundColor: 'rgba(34,197,94,.08)',
+                    backgroundColor: 'rgba(34,197,94,.02)',
                     borderWidth: 2.5,
                     borderDash: [6, 4],
                     tension: 0.3,
                     fill: false,
-                    pointRadius: 2,
-                    pointHoverRadius: 5,
+                    pointRadius: 3,
+                    pointBackgroundColor: '#fff',
+                    pointBorderColor: '#22c55e',
+                    pointBorderWidth: 1.5,
+                    pointHoverRadius: 6,
                     spanGaps: true,
                 }
             ];
@@ -966,12 +969,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 scales: {
                     x: {
                         ticks: { maxTicksLimit: 12, font: { size: 11 }, color: '#94a3b8' },
-                        grid: { color: 'rgba(0,0,0,.03)' }
+                        grid: { color: 'rgba(0,0,0,.02)' }
                     },
                     y: {
                         beginAtZero: true,
+                        grace: '10%',
                         title: { display: true, text: 'Stok Keluar (unit)', font: { size: 11 }, color: '#64748b' },
-                        grid: { color: 'rgba(0,0,0,.04)' },
+                        grid: { color: 'rgba(0,0,0,.02)' },
                         ticks: { font: { size: 11 }, color: '#94a3b8' }
                     }
                 }
@@ -1043,32 +1047,6 @@ document.addEventListener('DOMContentLoaded', function() {
             displayTablePage();
         }
     });
-    
-    // SweetAlert Konfirmasi
-    window.confirmRunMl = function() {
-        Swal.fire({
-            title: 'Jalankan Ulang ML?',
-            text: "Sistem akan mengekspor histori produksi terbaru dan menjalankan ulang kalkulasi Machine Learning (ARIMA) untuk semua produk. Proses ini mungkin memakan waktu beberapa saat.",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#696cff',
-            cancelButtonColor: '#ff3e1d',
-            confirmButtonText: 'Ya, Jalankan!',
-            cancelButtonText: 'Batal'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                Swal.fire({
-                    title: 'Memproses...',
-                    text: 'Mohon tunggu sementara model sedang di-training.',
-                    allowOutsideClick: false,
-                    didOpen: () => {
-                        Swal.showLoading();
-                    }
-                });
-                document.getElementById('form-run-ml').submit();
-            }
-        });
-    }
 
     /* ======================================================
        UI HELPERS
@@ -1128,3 +1106,102 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 @endsection
+
+@push('modals')
+{{-- ===== MODAL: Konfirmasi Kalkulasi ML (Pure Tailwind) ===== --}}
+<div id="modalConfirmMl"
+     class="fixed inset-0 z-[9999] flex items-center justify-center hidden"
+     style="background: rgba(15,23,42,0.45); backdrop-filter: blur(6px);">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 overflow-hidden"
+         style="animation: modalSlideUp 0.25s cubic-bezier(.16,1,.3,1) both;">
+        {{-- Close button --}}
+        <div class="flex justify-end pt-4 pr-4">
+            <button onclick="closeConfirmMl()" class="w-8 h-8 flex items-center justify-center rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-all text-lg leading-none">&times;</button>
+        </div>
+        {{-- Body --}}
+        <div class="px-8 pb-8 text-center">
+            {{-- Icon --}}
+            <div class="w-20 h-20 rounded-full mx-auto mb-5 flex items-center justify-center text-4xl"
+                 style="background: linear-gradient(135deg,#fff9db 0%,#fff0b3 100%); color:#ffab00; box-shadow: 0 8px 20px rgba(255,171,0,0.18);">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+            </div>
+            <h3 class="text-xl font-bold text-slate-800 mb-3">Jalankan Ulang Kalkulasi ML?</h3>
+            <p class="text-slate-500 mb-5 leading-relaxed" style="font-size:13.5px;">
+                Sistem akan memproses dan mengekspor seluruh histori produksi terbaru dari database, kemudian menjalankan ulang model optimasi Machine Learning (ARIMA) untuk semua produk aktif secara dinamis.
+            </p>
+            {{-- Warning note --}}
+            <div class="flex items-start gap-2 rounded-xl px-4 py-3 mb-6 text-left"
+                 style="background:#fffbeb; border:1px solid #fde68a; color:#92400e; font-size:12.5px; font-weight:500; line-height:1.55;">
+                <i class="bi bi-clock-history mt-0.5 shrink-0"></i>
+                <span><strong>Catatan Penting:</strong> Proses komputasi ARIMA memerlukan waktu beberapa saat karena mengevaluasi data histori harian secara real-time.</span>
+            </div>
+            {{-- Buttons --}}
+            <div class="flex items-center justify-center gap-3">
+                <button onclick="closeConfirmMl()"
+                        class="px-6 py-2.5 rounded-lg text-sm font-semibold text-slate-500 bg-slate-100 hover:bg-slate-200 transition-all">
+                    Batal
+                </button>
+                <button onclick="submitRunMl()"
+                        class="px-6 py-2.5 rounded-lg text-sm font-semibold text-white transition-all"
+                        style="background:linear-gradient(135deg,#696cff 0%,#5f61e6 100%); box-shadow:0 4px 14px rgba(105,108,255,0.35);">
+                    Lanjut
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{-- ===== MODAL: Loading ML (Pure Tailwind) ===== --}}
+<div id="modalLoadingMl"
+     class="fixed inset-0 z-[9999] flex items-center justify-center hidden"
+     style="background: rgba(15,23,42,0.45); backdrop-filter: blur(6px);">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm mx-4 overflow-hidden"
+         style="animation: modalSlideUp 0.25s cubic-bezier(.16,1,.3,1) both;">
+        <div class="px-8 py-8 text-center">
+            <div class="w-14 h-14 rounded-full mx-auto mb-5 flex items-center justify-center text-2xl pulse-loader"
+                 style="background:linear-gradient(135deg,#696cff 0%,#5f61e6 100%); color:#fff; box-shadow:0 8px 24px rgba(105,108,255,0.38);">
+                <i class="bi bi-cpu"></i>
+            </div>
+            <h3 class="text-lg font-bold text-slate-800 mb-2">Mengevaluasi &amp; Mentraining Model...</h3>
+            <p class="text-slate-500 mb-0 leading-relaxed" style="font-size:13px;">
+                Sistem sedang memproses algoritma ARIMA secara real-time.<br>
+                <strong style="color:#696cff;">Mohon tidak menutup atau memuat ulang halaman ini.</strong>
+            </p>
+        </div>
+    </div>
+</div>
+
+<style>
+@keyframes modalSlideUp {
+    from { opacity: 0; transform: translateY(24px) scale(0.97); }
+    to   { opacity: 1; transform: translateY(0)   scale(1);    }
+}
+</style>
+
+<script>
+function confirmRunMl() {
+    var el = document.getElementById('modalConfirmMl');
+    el.classList.remove('hidden');
+    el.querySelector('.bg-white').style.animation = 'none';
+    void el.querySelector('.bg-white').offsetWidth; // reflow trigger
+    el.querySelector('.bg-white').style.animation = 'modalSlideUp 0.25s cubic-bezier(.16,1,.3,1) both';
+}
+function closeConfirmMl() {
+    document.getElementById('modalConfirmMl').classList.add('hidden');
+}
+function submitRunMl() {
+    closeConfirmMl();
+    var el = document.getElementById('modalLoadingMl');
+    el.classList.remove('hidden');
+    document.getElementById('form-run-ml').submit();
+}
+// Close on backdrop click
+document.getElementById('modalConfirmMl').addEventListener('click', function(e) {
+    if (e.target === this) closeConfirmMl();
+});
+// ESC key to close
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeConfirmMl();
+});
+</script>
+@endpush

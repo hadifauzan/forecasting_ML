@@ -213,22 +213,28 @@ class ThesisForecastingSeeder extends Seeder
                     'updated_at' => $date,
                 ]);
 
-                // Simulate production (FinishedGoodsIn) every 7 days
-                if ($i % 7 == 0) {
-                    $productionQty = $base * 7 * 1.2; // Produce enough for a week + buffer
-                    DB::table('finished_goods_in')->insert([
-                        'item_id' => $item->item_id,
-                        'inventory_id' => $inventory->inventory_id,
-                        'branch_id' => 1,
-                        'received_by' => 1,
-                        'qty_received' => $productionQty,
-                        'received_date' => $date->format('Y-m-d'),
-                        'production_order_id' => null, // Manual entry
-                        'notes' => 'Simulated production',
-                        'created_at' => $date,
-                        'updated_at' => $date,
-                    ]);
-                }
+                // Seed finished_goods_in daily to match daily sales demand
+                DB::table('finished_goods_in')->insert([
+                    'item_id' => $item->item_id,
+                    'inventory_id' => $inventory->inventory_id,
+                    'branch_id' => 1,
+                    'received_by' => 1,
+                    'qty_received' => $dailyDemand,
+                    'received_date' => $date->format('Y-m-d'),
+                    'production_date' => $date->format('Y-m-d'),
+                    'document_number' => 'FGI-SEEDED-' . $item->code_item . '-' . $date->format('Ymd'),
+                    'batch_number' => 'B-' . $date->format('ymd'),
+                    'qc_status' => 'passed',
+                    'unit' => 'pcs',
+                    'unit_cost' => $item->costprice_item ?? 15000.0,
+                    'total_cost' => $dailyDemand * ($item->costprice_item ?? 15000.0),
+                    'stock_before' => 0.0,
+                    'stock_after' => $dailyDemand,
+                    'production_order_id' => null, // Manual entry
+                    'notes' => 'Simulated production matching daily sales demand',
+                    'created_at' => $date,
+                    'updated_at' => $date,
+                ]);
             }
 
             // Hitung aktual buffer stock di MasterItemStock (Simulasi)
@@ -275,9 +281,9 @@ class ThesisForecastingSeeder extends Seeder
                 $isTest = $index >= $trainPeriod;
                 $actualVal = $sale->qty_out;
                 
-                // Simulate predicted value (close to actual to simulate a good ML model)
-                $noise = ($isTest) ? rand(-3, 3) : rand(-2, 2);
-                $predictedVal = max(5, $actualVal + $noise);
+                // Simulate predicted value (close to actual to simulate a good ML model, capped so it never exceeds actual)
+                $noise = ($isTest) ? rand(-3, -1) : rand(-2, 0);
+                $predictedVal = min($actualVal, max(0, $actualVal + $noise));
                 
                 $error = $actualVal - $predictedVal;
                 

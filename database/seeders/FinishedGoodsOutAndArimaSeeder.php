@@ -59,8 +59,9 @@ class FinishedGoodsOutAndArimaSeeder extends Seeder
         // 5. Bersihkan data ARIMA detail & summary yang lama untuk produk ini agar tidak duplikat
         DB::table('arima_forecast_summaries')->where('produk', $sku)->delete();
         DB::table('arima_forecast_details')->where('produk', $sku)->delete();
-        // Bersihkan juga data stok keluar lama untuk produk ini agar tidak menumpuk
+        // Bersihkan juga data stok keluar dan masuk lama untuk produk ini agar tidak menumpuk
         DB::table('finished_goods_out')->where('item_id', $itemId)->delete();
+        DB::table('finished_goods_in')->where('item_id', $itemId)->delete();
 
         // 6. Generate ARIMA Summary untuk GB-BB-100
         DB::table('arima_forecast_summaries')->insert([
@@ -85,6 +86,7 @@ class FinishedGoodsOutAndArimaSeeder extends Seeder
         $baseSales = 10.0;
         $detailPayload = [];
         $fgOutPayload = [];
+        $fgInPayload = [];
         
         $currentStock = 500.0; // Simulasi tracking stok berjalan
 
@@ -145,6 +147,28 @@ class FinishedGoodsOutAndArimaSeeder extends Seeder
                 'created_at' => now(),
                 'updated_at' => now(),
             ];
+
+            // Transaction (finished_goods_in) record
+            $fgInPayload[] = [
+                'item_id' => $itemId,
+                'inventory_id' => $inventoryId,
+                'branch_id' => $branchId,
+                'received_by' => $userId,
+                'document_number' => 'FGI-SEEDED-' . $currentDate->format('Ymd') . '-' . str_pad($d, 3, '0', STR_PAD_LEFT),
+                'batch_number' => 'B-' . $currentDate->format('ymd'),
+                'qty_received' => $actualVal,
+                'unit' => 'pcs',
+                'unit_cost' => $item->costprice_item ?? 30000.0,
+                'total_cost' => $actualVal * ($item->costprice_item ?? 30000.0),
+                'stock_before' => 0.0,
+                'stock_after' => $actualVal,
+                'qc_status' => 'passed',
+                'received_date' => $dateStr,
+                'production_date' => $dateStr,
+                'notes' => 'Generated historical production for ARIMA testing',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ];
         }
 
         // ── 7.2. TESTING/ACTUAL PERIOD (37 hari) ──
@@ -157,9 +181,9 @@ class FinishedGoodsOutAndArimaSeeder extends Seeder
             $cycleEffect = 5.0 * sin(($d / 37.0) * 2.0 * M_PI * 2.0); // 2 complete waves
             $actualVal = round(max(2.0, $baseSales + $weeklyEffect + $cycleEffect + rand(-2, 2)));
 
-            // Kurva prediksi dibuat mulus dan mengalir rapi di tengah fluktuasi aktual
+            // Kurva prediksi dibuat mulus dan mengalir rapi di tengah fluktuasi aktual, dibatasi agar tidak melebihi aktual
             $smoothWeekly = ($dayOfWeek == 5 || $dayOfWeek == 6 || $dayOfWeek == 0) ? 4.0 : -2.0;
-            $predictedVal = round(max(2.0, $baseSales + $smoothWeekly + $cycleEffect), 2);
+            $predictedVal = min($actualVal, round(max(2.0, $baseSales + $smoothWeekly + $cycleEffect), 2));
 
             $error = round($actualVal - $predictedVal, 4);
             $absError = abs($error);
@@ -202,6 +226,28 @@ class FinishedGoodsOutAndArimaSeeder extends Seeder
                 'created_at' => now(),
                 'updated_at' => now(),
             ];
+
+            // Transaction (finished_goods_in) record
+            $fgInPayload[] = [
+                'item_id' => $itemId,
+                'inventory_id' => $inventoryId,
+                'branch_id' => $branchId,
+                'received_by' => $userId,
+                'document_number' => 'FGI-SEEDED-' . $currentDate->format('Ymd') . '-' . str_pad($d + 100, 3, '0', STR_PAD_LEFT),
+                'batch_number' => 'B-' . $currentDate->format('ymd'),
+                'qty_received' => $actualVal,
+                'unit' => 'pcs',
+                'unit_cost' => $item->costprice_item ?? 30000.0,
+                'total_cost' => $actualVal * ($item->costprice_item ?? 30000.0),
+                'stock_before' => 0.0,
+                'stock_after' => $actualVal,
+                'qc_status' => 'passed',
+                'received_date' => $dateStr,
+                'production_date' => $dateStr,
+                'notes' => 'Generated testing production for ARIMA testing',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ];
         }
 
         // ── 7.3. FORECAST PERIOD (90 hari) ──
@@ -230,10 +276,15 @@ class FinishedGoodsOutAndArimaSeeder extends Seeder
         }
 
         // 8. Bulk Insert into DB
-        DB::transaction(function () use ($detailPayload, $fgOutPayload) {
+        DB::transaction(function () use ($detailPayload, $fgOutPayload, $fgInPayload) {
             // Seed finished_goods_out
             foreach (array_chunk($fgOutPayload, 50) as $chunk) {
                 DB::table('finished_goods_out')->insert($chunk);
+            }
+
+            // Seed finished_goods_in
+            foreach (array_chunk($fgInPayload, 50) as $chunk) {
+                DB::table('finished_goods_in')->insert($chunk);
             }
 
             // Seed arima_forecast_details

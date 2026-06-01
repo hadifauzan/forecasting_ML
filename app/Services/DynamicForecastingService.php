@@ -13,6 +13,9 @@ class DynamicForecastingService
 {
     public function runDynamicForecast()
     {
+        // Increase maximum execution time to 5 minutes to allow Python ARIMA optimization for multiple products
+        set_time_limit(300);
+
         try {
             Log::info("Starting dynamic forecast based on FinishedGoodsIn...");
             
@@ -72,9 +75,9 @@ class DynamicForecastingService
             // 3. Import Results
             DB::beginTransaction();
             
-            // Clear old data (optional: or we update)
-            DB::table('arima_forecast_summaries')->truncate();
-            DB::table('arima_forecast_details')->truncate();
+            // Clear old data (using delete() instead of truncate() for database transaction safety and rollback capability)
+            DB::table('arima_forecast_summaries')->delete();
+            DB::table('arima_forecast_details')->delete();
             
             // Import Summary
             if (($handle = fopen($summaryCsv, "r")) !== FALSE) {
@@ -88,7 +91,7 @@ class DynamicForecastingService
                         'mae' => $row['mae'],
                         'rmse' => $row['rmse'],
                         'mape_percentage' => $row['mape_percentage'],
-                        'stationary' => $row['stationary'],
+                        'stationary' => in_array(strtolower($row['stationary'] ?? ''), ['yes', 'ya', '1', 'true']) ? 1 : 0,
                         'adf_p_value' => $row['adf_p_value'],
                         'kategori_mae' => $row['kategori_mae'],
                         'created_at' => $now,
@@ -129,6 +132,11 @@ class DynamicForecastingService
             DB::commit();
             Log::info("Dynamic forecasting completed successfully.");
             
+            // Cleanup temporary files on success
+            if (file_exists($inputCsv)) @unlink($inputCsv);
+            if (file_exists($summaryCsv)) @unlink($summaryCsv);
+            if (file_exists($detailsCsv)) @unlink($detailsCsv);
+            
             return [
                 'success' => true,
                 'message' => 'Peramalan dinamis berhasil dijalankan dan data diperbarui.'
@@ -137,6 +145,16 @@ class DynamicForecastingService
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error("Dynamic forecasting error: " . $e->getMessage());
+            
+            // Cleanup temporary files on failure
+            $tempDir = storage_path('app/temp_forecast');
+            $inputCsv = $tempDir . '/dynamic_input.csv';
+            $summaryCsv = $tempDir . '/dynamic_summary.csv';
+            $detailsCsv = $tempDir . '/dynamic_details.csv';
+            if (file_exists($inputCsv)) @unlink($inputCsv);
+            if (file_exists($summaryCsv)) @unlink($summaryCsv);
+            if (file_exists($detailsCsv)) @unlink($detailsCsv);
+            
             return [
                 'success' => false,
                 'message' => 'Terjadi kesalahan sistem saat peramalan dinamis: ' . $e->getMessage()

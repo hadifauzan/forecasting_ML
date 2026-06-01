@@ -639,19 +639,19 @@ class InventoryDashboardController extends Controller
 
         $itemId = $masterItem?->item_id;
 
-        // ── 3. ACTUAL PRODUCTION — HANYA dari transaksi nyata (NO CSV fallback) ─
+        // ── 3. ACTUAL DEMAND — dari finished_goods_out (stok keluar = permintaan nyata) ─
         $actualFromTransactions = [];
 
         if ($itemId) {
-            $txRows = DB::table('finished_goods_in')
+            $txRows = DB::table('finished_goods_out')
                 ->where('item_id', $itemId)
-                ->whereNotNull('received_date')
+                ->whereNotNull('out_date')
                 ->whereNull('deleted_at')
                 ->select(
-                    DB::raw('DATE(received_date) as sale_date'),
-                    DB::raw('SUM(qty_received) as total_qty')
+                    DB::raw('DATE(out_date) as sale_date'),
+                    DB::raw('SUM(qty_out) as total_qty')
                 )
-                ->groupBy(DB::raw('DATE(received_date)'))
+                ->groupBy(DB::raw('DATE(out_date)'))
                 ->orderBy('sale_date', 'asc')
                 ->get();
 
@@ -674,26 +674,29 @@ class InventoryDashboardController extends Controller
 
         // ── 5. BUILD CHART DATA ───────────────────────────────────────────
 
-        // Training: dari ARIMA detail (data historis model) - nilai riil ditarik murni dari finished_goods_out
+        // Training: ambil nilai aktual dari transaksi DB (jika ada), fallback ke actual_sales dari ARIMA CSV
         $trainingChart = $trainingRows->map(fn($d) => [
-            'date'  => substr($d->date, 0, 10),
-            'value' => (float) ($actualFromTransactions[substr($d->date, 0, 10)] ?? 0.0),
+            'date'      => substr($d->date, 0, 10),
+            'value'     => (float) ($actualFromTransactions[substr($d->date, 0, 10)] ?? (float)($d->actual_sales ?? 0.0)),
             'predicted' => (float) $d->predicted_sales,
         ])->toArray();
 
-        // Actual (test period): gunakan transaksi DB finished_goods_out, jika tidak ada disetel ke 0.0 (NO static fallback)
-        //   predicted: tetap dari ARIMA (jika ada transaksi nyata)
+        // Actual (test period): gunakan transaksi DB jika ada, fallback ke actual_sales ARIMA CSV
         $actualChart = [];
         $tableData   = [];
 
         foreach ($predictedRows as $d) {
-            $dateStr = substr($d->date, 0, 10);
-            $predQty = $hasTransactionData ? (float) $d->predicted_sales : 0.0;
+            $dateStr  = substr($d->date, 0, 10);
+            // Predicted: selalu tampilkan dari ARIMA (naik-turun mengikuti pola)
+            $predQty  = (float) $d->predicted_sales;
 
             $hasRealTx = isset($actualFromTransactions[$dateStr]);
-            $actualQty = $hasRealTx ? $actualFromTransactions[$dateStr] : 0.0;
-            $err       = round($actualQty - $predQty, 4);
-            $absErr    = round(abs($err), 4);
+            // Actual: dari transaksi DB jika ada, fallback ke actual_sales CSV agar tidak flat 0
+            $actualQty = $hasRealTx
+                ? $actualFromTransactions[$dateStr]
+                : (float) ($d->actual_sales ?? 0.0);
+            $err    = round($actualQty - $predQty, 4);
+            $absErr = round(abs($err), 4);
 
             $actualChart[] = [
                 'date'      => $dateStr,
@@ -708,7 +711,7 @@ class InventoryDashboardController extends Controller
                 'predicted_sales' => $predQty,
                 'error'           => $err,
                 'absolute_error'  => $absErr,
-                'source'          => $hasRealTx ? 'transaction' : 'empty',
+                'source'          => $hasRealTx ? 'transaction' : 'arima_csv',
             ];
         }
 
