@@ -7,8 +7,8 @@ use App\Models\MasterItem;
 use App\Models\MasterItemRawMaterial;
 use App\Models\MasterItemBillOfMaterials;
 use App\Models\FinishedGoodsIn;
-use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 
 class DummyForecastingSeeder extends Seeder
@@ -75,6 +75,7 @@ class DummyForecastingSeeder extends Seeder
 
                 // Delete old dummy data for this item if any
                 FinishedGoodsIn::where('item_id', $item->item_id)->delete();
+                DB::table('finished_goods_out')->where('item_id', $item->item_id)->delete();
 
                 // 60 Days of Dummy Production Data for Forecasting (ARIMA needs > 14 days)
                 $startDate = Carbon::now()->subDays(60);
@@ -103,12 +104,34 @@ class DummyForecastingSeeder extends Seeder
                         'branch_id' => 1,
                         'received_by' => 1,
                         'qty_received' => $qty,
-                        'received_date' => $currentDate->format('Y-m-d'),
-                        'production_date' => $currentDate->format('Y-m-d'),
-                        'document_number' => 'DUMMY-PRD-' . $item->code_item . '-' . $currentDate->format('Ymd'),
-                        'batch_number' => 'B-' . $currentDate->format('ymd'),
                         'unit' => 'pcs',
-                        'notes' => 'Dummy data for forecasting testing'
+                        'unit_cost' => 25000,
+                        'total_cost' => $qty * 25000,
+                        'stock_before' => 0,
+                        'stock_after' => $qty,
+                        'received_date' => $currentDate,
+                        'production_date' => $currentDate,
+                        'document_number' => 'DUMMY-FGI-' . $item->code_item . '-' . $currentDate->format('Ymd'),
+                        'qc_status' => 'passed'
+                    ]);
+
+                    DB::table('finished_goods_out')->insert([
+                        'item_id' => $item->item_id,
+                        'inventory_id' => 1,
+                        'branch_id' => 1,
+                        'issued_by' => 1,
+                        'qty_out' => $qty,
+                        'unit' => 'pcs',
+                        'unit_cost' => 25000,
+                        'total_cost' => $qty * 25000,
+                        'stock_before' => $qty,
+                        'stock_after' => 0,
+                        'type' => 'sale',
+                        'out_date' => $currentDate,
+                        'document_number' => 'DUMMY-FGO-' . $item->code_item . '-' . $currentDate->format('Ymd'),
+                        'notes' => 'Dummy out',
+                        'created_at' => Carbon::now(),
+                        'updated_at' => Carbon::now()
                     ]);
                 }
                 

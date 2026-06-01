@@ -76,6 +76,7 @@ class ArimaForecastSeeder extends Seeder
         $detailRows = $this->readCsv($detailPath);
         $detailPayload = [];
         $fgInPayload = [];
+        $fgOutPayload = [];
 
         $itemsMap = DB::table('master_items')->pluck('item_id', 'code_item')->toArray();
         $itemsCostMap = DB::table('master_items')->pluck('costprice_item', 'code_item')->toArray();
@@ -91,6 +92,7 @@ class ArimaForecastSeeder extends Seeder
         foreach (array_keys($uniqueSkus) as $sku) {
             if (isset($itemsMap[$sku])) {
                 DB::table('finished_goods_in')->where('item_id', $itemsMap[$sku])->delete();
+                DB::table('finished_goods_out')->where('item_id', $itemsMap[$sku])->delete();
             }
         }
 
@@ -119,7 +121,7 @@ class ArimaForecastSeeder extends Seeder
                 'updated_at' => $now
             ];
 
-            // Seed matching finished_goods_in record
+            // Seed matching finished_goods_in and finished_goods_out records
             if (isset($itemsMap[$sku])) {
                 $itemId = $itemsMap[$sku];
                 $cost = $itemsCostMap[$sku] ?? 12000.0;
@@ -144,13 +146,37 @@ class ArimaForecastSeeder extends Seeder
                     'created_at' => $now,
                     'updated_at' => $now
                 ];
+
+                $fgOutPayload[] = [
+                    'item_id' => $itemId,
+                    'inventory_id' => 1,
+                    'branch_id' => 1,
+                    'issued_by' => 1,
+                    'document_number' => 'FGO-SEEDED-' . $sku . '-' . str_replace('-', '', $dateStr),
+                    'qty_out' => $actualVal,
+                    'unit' => 'pcs',
+                    'unit_cost' => $cost,
+                    'total_cost' => $actualVal * $cost,
+                    'stock_before' => 0.0,
+                    'stock_after' => 0.0, // simplified for seeding
+                    'type' => 'sale',
+                    'out_date' => $dateStr,
+                    'notes' => 'Seeded matching sale from CSV details',
+                    'created_at' => $now,
+                    'updated_at' => $now
+                ];
             }
         }
 
-        // Bulk insert finished_goods_in records
+        // Bulk insert finished_goods_in and finished_goods_out records
         if (!empty($fgInPayload)) {
             foreach (array_chunk($fgInPayload, 100) as $chunk) {
                 DB::table('finished_goods_in')->insert($chunk);
+            }
+        }
+        if (!empty($fgOutPayload)) {
+            foreach (array_chunk($fgOutPayload, 100) as $chunk) {
+                DB::table('finished_goods_out')->insert($chunk);
             }
         }
 
