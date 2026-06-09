@@ -43,7 +43,7 @@ class DatabaseSeeder extends Seeder
             AffiliateSubmissionsSeeder::class,
             AffiliateGuideSeeder::class,
             DummyForecastingSeeder::class, // New dynamic forecasting dummy data
-            DummyInventorySeeder::class    // Mega data for UI views pagination
+            // DummyInventorySeeder::class    // Mega data for UI views pagination
         ]);
     }
 }

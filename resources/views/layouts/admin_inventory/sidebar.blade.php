@@ -106,7 +106,7 @@
                         class="flex items-center px-4 py-2.5 rounded-lg transition-colors duration-200
                         {{ request()->routeIs('admin.inventory.finished-goods') ? 'bg-[#696cff]/10 text-[#696cff] font-medium' : 'text-[#697a8d] hover:bg-slate-50' }}">
                         <i class="bi bi-box-seam text-lg mr-3"></i>
-                        <span>Stok Produk Jadi</span>
+                        <span> Produk Jadi</span>
                     </a>
                 </li>
 
@@ -134,19 +134,20 @@
                     <span class="text-xs uppercase tracking-wider text-slate-400 font-semibold">Reports</span>
                 </li>
 
-                <!-- History Transaksi -->
+                <!-- Riwayat Transaksi -->
                 <li>
                     <a href="{{ route('admin.inventory.transaction-history') }}"
                         class="flex items-center px-4 py-2.5 rounded-lg transition-colors duration-200
                         {{ request()->routeIs('admin.inventory.transaction-history') ? 'bg-[#696cff]/10 text-[#696cff] font-medium' : 'text-[#697a8d] hover:bg-slate-50' }}">
                         <i class="bi bi-clock-history text-lg mr-3"></i>
-                        <span>History Transaksi</span>
+                        <span>Riwayat Transaksi</span>
                     </a>
                 </li>
             @endif
 
             {{-- Production & Stock Operations - Owner & Production Team Only --}}
-            @if(Auth::user() && method_exists(Auth::user(), 'hasRole') && (Auth::user()->hasRole('owner') || Auth::user()->hasRole('production_team')))
+            @if(Auth::user() && method_exists(Auth::user(), 'hasRole') && (Auth::user()->hasRole('owner') || Auth::user()->hasRole('admin_inventory')))
+            
                 <li class="px-4 mt-6 mb-2">
                     <span class="text-xs uppercase tracking-wider text-slate-400 font-semibold">Stock Operations</span>
                 </li>

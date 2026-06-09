@@ -103,17 +103,6 @@ class UserSeeder extends Seeder
                 'phone' => '081234567897',
                 'status' => 'Aktif',
             ],
-            // Role 12: Production Team
-            [
-                'company_id' => 3,
-                'role_id' => 12,
-                'name' => 'Production Team',
-                'email' => 'production@gentleliving.com',
-                'email_verified_at' => now(),
-                'password' => Hash::make('admin123'),
-                'phone' => '081234567898',
-                'status' => 'Aktif',
-            ],
         ];
 
         foreach ($users as $user) {

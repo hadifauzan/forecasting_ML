@@ -8,7 +8,7 @@
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
             <h1 class="text-2xl font-bold text-slate-800 tracking-tight">Dashboard Inventaris</h1>
-            <p class="text-sm text-slate-500 mt-1">Ringkasan stok bahan baku, produksi, dan rantai pasok</p>
+            <p class="text-sm text-slate-500 mt-1">Ringkasan bahan baku, produksi, dan rantai pasok</p>
         </div>
         <div class="flex gap-3">
             <a href="{{ route('admin.inventory.forecasting.demand') }}" class="px-4 py-2 bg-[#696cff] text-white rounded-lg hover:bg-[#5f61e6] transition-colors shadow-sm shadow-[#696cff]/30 text-sm font-medium flex items-center">
@@ -22,7 +22,7 @@
         <!-- Card 1 -->
         <div class="sneat-card p-6 flex items-center justify-between border-l-4 border-[#696cff]">
             <div>
-                <p class="text-sm font-medium text-slate-500 mb-1">Total Stok Item</p>
+                <p class="text-sm font-medium text-slate-500 mb-1">Total Produk</p>
                 <p class="text-2xl font-bold text-slate-800">{{ number_format($totalStock ?? 0) }}</p>
                 <p class="text-xs text-slate-400 mt-1">{{ $totalItems ?? 0 }} jenis bahan baku</p>
             </div>
@@ -34,7 +34,7 @@
         <!-- Card 2 -->
         <div class="sneat-card p-6 flex items-center justify-between border-l-4 border-[#71dd37]">
             <div>
-                <p class="text-sm font-medium text-slate-500 mb-1">Stok Masuk Bulan Ini</p>
+                <p class="text-sm font-medium text-slate-500 mb-1">Bahan Baku Masuk Bulan Ini</p>
                 <p class="text-2xl font-bold text-slate-800">{{ number_format($stockMasukBulanIni ?? 0) }}</p>
                 <p class="text-xs text-slate-400 mt-1">Rp {{ number_format($nilaiMasukBulanIni ?? 0, 0, ',', '.') }}</p>
             </div>
@@ -46,7 +46,7 @@
         <!-- Card 3 -->
         <div class="sneat-card p-6 flex items-center justify-between border-l-4 border-[#ffab00]">
             <div>
-                <p class="text-sm font-medium text-slate-500 mb-1">Stok Keluar Bulan Ini</p>
+                <p class="text-sm font-medium text-slate-500 mb-1">Produk Keluar Bulan Ini</p>
                 <p class="text-2xl font-bold text-slate-800">{{ number_format($stockKeluarBulanIni ?? 0) }}</p>
                 <p class="text-xs text-slate-400 mt-1">Rp {{ number_format($nilaiKeluarBulanIni ?? 0, 0, ',', '.') }}</p>
             </div>
@@ -58,7 +58,7 @@
         <!-- Card 4 -->
         <div class="sneat-card p-6 flex items-center justify-between border-l-4 border-[#ff3e1d]">
             <div>
-                <p class="text-sm font-medium text-slate-500 mb-1">Stok Menipis (Alert)</p>
+                <p class="text-sm font-medium text-slate-500 mb-1">Bahan Baku Menipis (Alert)</p>
                 <p class="text-2xl font-bold text-[#ff3e1d]">{{ number_format(($lowStockItems ?? 0) + ($emptyStockItems ?? 0)) }}</p>
                 <p class="text-xs text-slate-400 mt-1">{{ $emptyStockItems ?? 0 }} habis &bull; {{ $lowStockItems ?? 0 }} menipis</p>
             </div>
@@ -87,7 +87,7 @@
                     <i class="bi bi-gear-wide-connected mr-2 text-[#696cff] animate-spin-slow"></i>
                     Peta Alur Rantai Pasok Terintegrasi
                 </h2>
-                <p class="text-xs text-slate-500 mt-1">Sistem informasi visual end-to-end dari pembelian bahan baku hingga stok keluar (Gentle Living)</p>
+                <p class="text-xs text-slate-500 mt-1">Sistem informasi visual end-to-end dari pembelian bahan baku hingga Produk keluar (Gentle Living)</p>
             </div>
             <div class="mt-2 md:mt-0">
                 <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-[#e7e7ff] text-[#696cff]">
@@ -148,7 +148,7 @@
                             </div>
                             <h3 class="font-bold text-slate-800 text-sm ml-3">Produksi</h3>
                         </div>
-                        <p class="text-xs text-slate-500">Proses manufaktur barang jadi berdasarkan BOM.</p>
+                        <p class="text-xs text-slate-500">Proses manufaktur produk berdasarkan BOM.</p>
                     </div>
                     <div class="mt-4 pt-3 border-t border-slate-100 flex justify-between items-center">
                         <span class="text-[11px] text-slate-500 font-medium">BOM Terdaftar:</span>
@@ -163,7 +163,7 @@
                     <i class="bi bi-chevron-double-right text-slate-300 text-2xl animate-pulse"></i>
                 </div>
 
-                <!-- Step 3: Stok -->
+                <!-- Step 3: Produk -->
                 <div class="flex-1 bg-white border border-slate-200 hover:border-[#03c3ec] rounded-xl p-5 shadow-sm hover:shadow-md transition-all duration-300 relative group z-10 flex flex-col justify-between">
                     <div>
                         <div class="flex items-center justify-between mb-3">
@@ -179,9 +179,9 @@
                             <div class="w-10 h-10 bg-[#d7f5fc] text-[#03c3ec] rounded-lg flex items-center justify-center text-xl group-hover:scale-110 transition-transform duration-300">
                                 <i class="bi bi-box-seam"></i>
                             </div>
-                            <h3 class="font-bold text-slate-800 text-sm ml-3">Stok Gudang</h3>
+                            <h3 class="font-bold text-slate-800 text-sm ml-3">Produk pada gudang</h3>
                         </div>
-                        <p class="text-xs text-slate-500">Penyimpanan barang jadi dan pemantauan limit.</p>
+                        <p class="text-xs text-slate-500">Penyimpanan produk dan pemantauan limit.</p>
                     </div>
                     <div class="mt-4 pt-3 border-t border-slate-100 flex justify-between items-center">
                         <span class="text-[11px] text-slate-500 font-medium">Produk Kritis:</span>
@@ -223,7 +223,7 @@
                     <i class="bi bi-chevron-double-right text-slate-300 text-2xl animate-pulse"></i>
                 </div>
 
-                <!-- Step 5: Stok Keluar -->
+                <!-- Step 5: Produk  Keluar -->
                 <div class="flex-1 bg-white border border-slate-200 hover:border-[#ff3e1d] rounded-xl p-5 shadow-sm hover:shadow-md transition-all duration-300 relative group z-10 flex flex-col justify-between">
                     <div>
                         <div class="flex items-center justify-between mb-3">
@@ -233,9 +233,9 @@
                             <div class="w-10 h-10 bg-[#ffe0db] text-[#ff3e1d] rounded-lg flex items-center justify-center text-xl group-hover:scale-110 transition-transform duration-300">
                                 <i class="bi bi-truck"></i>
                             </div>
-                            <h3 class="font-bold text-slate-800 text-sm ml-3">Stok Keluar</h3>
+                            <h3 class="font-bold text-slate-800 text-sm ml-3">Produk Keluar</h3>
                         </div>
-                        <p class="text-xs text-slate-500">Pengiriman barang kepada konsumen.</p>
+                        <p class="text-xs text-slate-500">Pengiriman produk kepada konsumen.</p>
                     </div>
                     <div class="mt-4 pt-3 border-t border-slate-100 flex justify-between items-center">
                         <span class="text-[11px] text-slate-500 font-medium">Nilai Keluar:</span>
@@ -249,13 +249,13 @@
         </div>
     </div>
 
-    <!-- Layout Tables: Stok Masuk Terbaru & Stok Keluar Terbaru -->
+    <!-- Layout Tables: Bahan Baku Masuk Terbaru & Produk  Keluar Terbaru -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         
-        <!-- Stok Masuk Terbaru -->
+        <!-- Bahan Baku Masuk Terbaru -->
         <div class="sneat-card flex flex-col h-full">
             <div class="px-6 py-5 border-b border-slate-100 flex justify-between items-center">
-                <h5 class="text-lg font-bold text-slate-800">Stok Masuk Terbaru</h5>
+                <h5 class="text-lg font-bold text-slate-800">Bahan Baku Masuk Terbaru</h5>
                 <span class="text-xs text-slate-400">Pembelian bahan baku</span>
             </div>
             <div class="p-0 overflow-x-auto">
@@ -292,10 +292,10 @@
             </div>
         </div>
 
-        <!-- Stok Keluar Terbaru -->
+        <!-- Produk Keluar Terbaru -->
         <div class="sneat-card flex flex-col h-full">
             <div class="px-6 py-5 border-b border-slate-100 flex justify-between items-center">
-                <h5 class="text-lg font-bold text-slate-800">Stok Keluar Terbaru</h5>
+                <h5 class="text-lg font-bold text-slate-800">Produk Keluar Terbaru</h5>
                 <span class="text-xs text-slate-400">Detail penjualan</span>
             </div>
             <div class="p-0 overflow-x-auto">

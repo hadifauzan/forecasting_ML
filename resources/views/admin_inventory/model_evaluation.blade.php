@@ -99,7 +99,7 @@
                 Model Evaluasi & Komparasi
             </h1>
             <p class="text-sm text-slate-500 mt-2 max-w-3xl leading-relaxed">
-                Analisis komparatif tingkat akurasi peramalan antara metode **ARIMA (Machine Learning)** dengan **Regresi Linear Berganda / Tren** secara dinamis. Mendukung evaluasi agregat **Keseluruhan** maupun **Produk Individu** langsung dari database.
+                Analisis komparatif tingkat akurasi peramalan antara metode <strong>ARIMA (Machine Learning)</strong> dengan <strong>Regresi Linear Berganda / Tren</strong> secara dinamis. Mendukung evaluasi agregat <strong>Keseluruhan</strong> maupun <strong>Produk Individu</strong> langsung dari database.
             </p>
         </div>
         <div class="flex items-center gap-2 bg-[#e7e7ff]/60 border border-[#696cff]/10 rounded-lg px-4 py-2.5 text-[#696cff] font-bold text-xs">
@@ -150,7 +150,7 @@
                     <div class="p-3 bg-blue-50 rounded-lg border border-blue-100">
                         <strong class="text-blue-700 block mb-1">Regresi Linear</strong>
                         <p class="leading-relaxed text-slate-500">
-                            Model deterministik yang memetakan tren linear waktu ($y = mx + c$). Sangat stabil pada level makro agregat karena mengabaikan noise fluktuatif harian.
+                            Model deterministik yang memetakan tren linear waktu (y = mx + c). Sangat stabil pada level makro agregat karena mengabaikan noise fluktuatif harian.
                         </p>
                     </div>
                 </div>

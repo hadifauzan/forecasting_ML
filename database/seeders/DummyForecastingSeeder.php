@@ -37,41 +37,41 @@ class DummyForecastingSeeder extends Seeder
             }
 
             // Make sure we have some Raw Materials for BOM
-            $rawKain = MasterItemRawMaterial::firstOrCreate(
-                ['material_name' => 'Kain Lembut Premium (Dummy)'],
-                [
-                    'unit' => 'meter',
-                    'purchase_price' => 35000,
-                    'current_stock' => 500,
-                    'lead_time_days' => 3,
-                    'buffer_stock' => 100,
-                    'supplier_name' => 'PT Tekstil Jaya'
-                ]
-            );
+            // $rawKain = MasterItemRawMaterial::firstOrCreate(
+            //     ['material_name' => 'Kain Lembut Premium (Dummy)'],
+            //     [
+            //         'unit' => 'meter',
+            //         'purchase_price' => 35000,
+            //         'current_stock' => 500,
+            //         'lead_time_days' => 3,
+            //         'buffer_stock' => 100,
+            //         'supplier_name' => 'PT Tekstil Jaya'
+            //     ]
+            // );
 
-            $rawBenang = MasterItemRawMaterial::firstOrCreate(
-                ['material_name' => 'Minyak Esensial (Dummy)'],
-                [
-                    'unit' => 'liter',
-                    'purchase_price' => 120000,
-                    'current_stock' => 50,
-                    'lead_time_days' => 2,
-                    'buffer_stock' => 10,
-                    'supplier_name' => 'CV Minyak Maju'
-                ]
-            );
+            // $rawBenang = MasterItemRawMaterial::firstOrCreate(
+            //     ['material_name' => 'Minyak Esensial (Dummy)'],
+            //     [
+            //         'unit' => 'liter',
+            //         'purchase_price' => 120000,
+            //         'current_stock' => 50,
+            //         'lead_time_days' => 2,
+            //         'buffer_stock' => 10,
+            //         'supplier_name' => 'CV Minyak Maju'
+            //     ]
+            // );
 
             foreach ($products as $item) {
                 // Ensure BOM exists
-                MasterItemBillOfMaterials::firstOrCreate(
-                    ['item_id' => $item->item_id, 'item_raw_id' => $rawKain->item_raw_id],
-                    ['quantity_required' => 0.5, 'yield_percentage' => 100]
-                );
+                // MasterItemBillOfMaterials::firstOrCreate(
+                //     ['item_id' => $item->item_id, 'item_raw_id' => $rawKain->item_raw_id],
+                //     ['quantity_required' => 0.5, 'yield_percentage' => 100]
+                // );
 
-                MasterItemBillOfMaterials::firstOrCreate(
-                    ['item_id' => $item->item_id, 'item_raw_id' => $rawBenang->item_raw_id],
-                    ['quantity_required' => 0.05, 'yield_percentage' => 100]
-                );
+                // MasterItemBillOfMaterials::firstOrCreate(
+                //     ['item_id' => $item->item_id, 'item_raw_id' => $rawBenang->item_raw_id],
+                //     ['quantity_required' => 0.05, 'yield_percentage' => 100]
+                // );
 
                 // Delete old dummy data for this item if any
                 FinishedGoodsIn::where('item_id', $item->item_id)->delete();

@@ -616,7 +616,8 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
     });
 
     // Kategori B: Hak Akses Pencatatan Keluar Masuk & Operasional Stok - Hanya Owner & Tim Produksi
-    Route::middleware(['role:owner,production_team'])->group(function () {
+   
+    Route::middleware(['role:owner'])->group(function () {
         // Production Overview Route
         Route::get('/inventory/production-overview', [InventoryDashboardController::class, 'productionOverview'])->name('admin.inventory.production.overview');
 
@@ -632,6 +633,8 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
         Route::get('/inventory/stock-adjustment/get-system-stock', [\App\Http\Controllers\Admin\StockAdjustmentController::class, 'getSystemStock'])->name('admin.stock-adjustment.get-system-stock');
         Route::post('/inventory/stock-adjustment/store', [\App\Http\Controllers\Admin\StockAdjustmentController::class, 'store'])->name('admin.stock-adjustment.store');
     });
+
+       
 });
 
 // Partner Registration Routes

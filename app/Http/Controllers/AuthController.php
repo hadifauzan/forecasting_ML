@@ -24,10 +24,6 @@ class AuthController extends Controller
             if (in_array($user->role_id, [5, 7, 8, 9])) {
                 return redirect()->route('admin.dashboard');
             }
-            // If production team (role_id 12), redirect to production overview
-            if ($user->role_id == 12) {
-                return redirect()->route('admin.inventory.production.overview');
-            }
             // If admin inventory or owner (role_id 10, 11), redirect to admin inventory dashboard
             if (in_array($user->role_id, [10, 11])) {
                 return redirect()->route('admin.inventory.dashboard');
@@ -100,10 +96,6 @@ class AuthController extends Controller
                 // Check if user is any type of admin (role_id 5, 7, 8, 9)
                 if (in_array($user->role_id, [5, 7, 8, 9])) {
                     return redirect()->route('admin.dashboard');
-                }
-                // Production Team (role_id 12)
-                if ($user->role_id == 12) {
-                    return redirect()->route('admin.inventory.production.overview');
                 }
                 // Admin Inventory, Owner (role_id 10, 11)
                 if (in_array($user->role_id, [10, 11])) {
@@ -359,8 +351,6 @@ class AuthController extends Controller
         // Determine redirect based on user role
         if (in_array($user->role_id, [5, 7, 8, 9])) {
             return redirect()->route('admin.dashboard')->with('success', 'Password berhasil diubah!');
-        } elseif ($user->role_id == 12) {
-            return redirect()->route('admin.inventory.production.overview')->with('success', 'Password berhasil diubah!');
         } elseif (in_array($user->role_id, [10, 11])) {
             return redirect()->route('admin.inventory.dashboard')->with('success', 'Password berhasil diubah!');
         } else {

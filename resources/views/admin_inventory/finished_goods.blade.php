@@ -6,8 +6,8 @@
 <div class="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 py-8">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="mb-8">
-            <h1 class="text-4xl font-bold text-gray-900 mb-2"> Daftar Produk Jadi </h1>
-            <p class="text-lg text-gray-600">Manajemen inventori produk jadi dan pantau stok secara real-time</p>
+            <h1 class="text-4xl font-bold text-gray-900 mb-2"> Daftar Produk </h1>
+            <p class="text-lg text-gray-600">Manajemen inventori produk dan pantau stok secara real-time</p>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
@@ -42,7 +42,7 @@
                         name="search"
                         id="live-search"
                         value="{{ $search }}"
-                        placeholder="Cari produk jadi..."
+                        placeholder="Cari produk ..."
                         class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     >
                     <button type="submit" class="px-6 py-2.5 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition-colors shadow-sm flex items-center gap-2">
@@ -98,7 +98,7 @@
                                 <td colspan="5" class="px-6 py-12 text-center">
                                     <i class="bi bi-inbox text-5xl text-slate-300 block mb-4"></i>
                                     <h3 class="text-lg font-bold text-slate-700 mb-1">Tidak ada produk</h3>
-                                    <p class="text-sm text-slate-500">Data produk jadi tidak ditemukan atau belum ditambahkan.</p>
+                                    <p class="text-sm text-slate-500">Data produk tidak ditemukan atau belum ditambahkan.</p>
                                 </td>
                             </tr>
                         @endforelse
@@ -119,7 +119,7 @@
     <div class="bg-white rounded-lg max-w-md w-full max-h-screen overflow-y-auto">
         <div class="bg-[#d3ebf4] border-b border-[#b9dbe8] px-6 py-4 sticky top-0">
             <div class="flex items-center justify-between">
-                <h2 class="text-xl font-semibold text-slate-800">Detail Produk Jadi</h2>
+                <h2 class="text-xl font-semibold text-slate-800">Detail Produk</h2>
                 <button type="button" onclick="closeDetailModal()" class="text-slate-500 hover:text-slate-700">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -151,7 +151,7 @@
     <div class="bg-white rounded-lg max-w-md w-full max-h-screen overflow-y-auto">
         <div class="bg-[#d3ebf4] border-b border-[#b9dbe8] px-6 py-4 sticky top-0">
             <div class="flex items-center justify-between">
-                <h2 class="text-xl font-semibold text-slate-800">Edit Stok Produk Jadi</h2>
+                <h2 class="text-xl font-semibold text-slate-800">Edit Stok Produk</h2>
                 <button type="button" onclick="closeEditModal()" class="text-slate-500 hover:text-slate-700">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -210,11 +210,11 @@ function getDeleteFinishedGoodsUrl(itemStockId) {
 
 async function deleteFinishedGoods(itemStockId, itemName) {
     if (!itemStockId) {
-        alert('ID produk jadi tidak valid.');
+        alert('ID produk tidak valid.');
         return;
     }
 
-    const confirmDelete = confirm(`Hapus data produk jadi "${itemName}"? Tindakan ini tidak dapat dibatalkan.`);
+    const confirmDelete = confirm(`Hapus data produk "${itemName}"? Tindakan ini tidak dapat dibatalkan.`);
     if (!confirmDelete) {
         return;
     }
@@ -237,7 +237,7 @@ async function deleteFinishedGoods(itemStockId, itemName) {
             return;
         }
 
-        showNotification(`<i class="bi bi-x-lg"></i> ${data.message || 'Gagal menghapus data produk jadi.'}`, 'error');
+        showNotification(`<i class="bi bi-x-lg"></i> ${data.message || 'Gagal menghapus data produk.'}`, 'error');
     } catch (error) {
         console.error('Error:', error);
         showNotification(`<i class="bi bi-x-lg"></i> Terjadi kesalahan saat menghapus data.`, 'error');

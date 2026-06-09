@@ -8,7 +8,7 @@
         <!-- Header -->
         <div class="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
-                <h1 class="text-4xl font-bold text-gray-900 mb-2">🏭 Production Overview</h1>
+                <h1 class="text-4xl font-bold text-gray-900 mb-2"> Production Overview</h1>
                 <p class="text-lg text-gray-600">Pantau alur produksi, raw material, dan finished goods dalam {{ $summary['period_days'] }} hari terakhir</p>
             </div>
 <!--             
@@ -30,7 +30,6 @@
                         <p class="text-sm text-gray-600">Production Orders</p>
                         <p class="text-3xl font-bold text-orange-600">{{ $summary['total_production_orders'] }}</p>
                     </div>
-                    <div class="text-4xl">🏭</div>
                 </div>
             </div>
 
@@ -40,7 +39,6 @@
                         <p class="text-sm text-gray-600">Raw Material In</p>
                         <p class="text-3xl font-bold text-blue-600">{{ number_format($summary['total_raw_material_in'], 0) }}</p>
                     </div>
-                    <div class="text-4xl">📥</div>
                 </div>
             </div>
 
@@ -50,7 +48,6 @@
                         <p class="text-sm text-gray-600">Raw Material Out</p>
                         <p class="text-3xl font-bold text-red-600">{{ number_format($summary['total_raw_material_out'], 0) }}</p>
                     </div>
-                    <div class="text-4xl">📤</div>
                 </div>
             </div>
 
@@ -60,7 +57,6 @@
                         <p class="text-sm text-gray-600">Finished Goods Out</p>
                         <p class="text-3xl font-bold text-green-600">{{ number_format($summary['total_finished_goods_out'], 0) }}</p>
                     </div>
-                    <div class="text-4xl">📦</div>
                 </div>
             </div>
         </div>
@@ -69,13 +65,13 @@
         <div class="bg-white rounded-lg shadow mb-6">
             <div class="flex border-b border-gray-200 overflow-x-auto">
                 <button onclick="showTab('production')" class="flex-1 px-6 py-4 text-center font-semibold text-blue-600 border-b-2 border-blue-600 bg-blue-50 whitespace-nowrap">
-                    🏭 Production Orders
+                     Production Orders
                 </button>
                 <button onclick="showTab('rawmaterial')" class="flex-1 px-6 py-4 text-center font-semibold text-gray-600 hover:text-blue-600 whitespace-nowrap">
-                    📦 Raw Material Flow
+                     Raw Material Flow
                 </button>
                 <button onclick="showTab('finished')" class="flex-1 px-6 py-4 text-center font-semibold text-gray-600 hover:text-blue-600 whitespace-nowrap">
-                    ✨ Finished Goods
+                     Finished Goods
                 </button>
             </div>
         </div>
@@ -111,16 +107,16 @@
                             <td class="px-6 py-4">
                                 @switch($po->status)
                                     @case('planning')
-                                        <span class="px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-sm font-medium">📋 Planning</span>
+                                        <span class="px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-sm font-medium"> Planning</span>
                                         @break
                                     @case('in_progress')
-                                        <span class="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm font-medium">⏳ In Progress</span>
+                                        <span class="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm font-medium"> In Progress</span>
                                         @break
                                     @case('completed')
-                                        <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">✅ Completed</span>
+                                        <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium"> Completed</span>
                                         @break
                                     @case('cancelled')
-                                        <span class="px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm font-medium">❌ Cancelled</span>
+                                        <span class="px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm font-medium"> Cancelled</span>
                                         @break
                                 @endswitch
                             </td>
@@ -193,7 +189,7 @@
             <!-- Raw Material Out -->
             <div class="bg-white rounded-lg shadow overflow-hidden">
                 <div class="bg-gradient-to-r from-red-500 to-red-600 text-white px-6 py-4">
-                    <h3 class="text-lg font-bold">📤 Raw Material Out (Penggunaan)</h3>
+                    <h3 class="text-lg font-bold"> Raw Material Out (Penggunaan)</h3>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200">
@@ -237,7 +233,7 @@
             <!-- Finished Goods In -->
             <div class="bg-white rounded-lg shadow overflow-hidden">
                 <div class="bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-4">
-                    <h3 class="text-lg font-bold">📦 Finished Goods In (Produksi Selesai)</h3>
+                    <h3 class="text-lg font-bold"> Finished Goods In (Produksi Selesai)</h3>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200">
@@ -278,7 +274,7 @@
             <!-- Finished Goods Out -->
             <div class="bg-white rounded-lg shadow overflow-hidden">
                 <div class="bg-gradient-to-r from-purple-500 to-purple-600 text-white px-6 py-4">
-                    <h3 class="text-lg font-bold">🚚 Finished Goods Out (Penjualan)</h3>
+                    <h3 class="text-lg font-bold"> Finished Goods Out (Penjualan)</h3>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200">
@@ -319,28 +315,24 @@
 
         <!-- Production Flow Chart -->
         <div class="bg-white rounded-lg shadow p-6 mt-8">
-            <h3 class="text-lg font-bold text-gray-900 mb-6">📊 Production Flow</h3>
+            <h3 class="text-lg font-bold text-gray-900 mb-6"> Production Flow</h3>
             <div class="flex flex-wrap items-center justify-between gap-4">
                 <div class="flex-1 min-w-[150px] bg-blue-50 p-4 rounded-lg text-center border-l-4 border-blue-500">
-                    <p class="text-2xl">📥</p>
                     <p class="font-semibold text-gray-700 mt-2">Raw Material In</p>
                     <p class="text-xl font-bold text-blue-600">{{ number_format($summary['total_raw_material_in'], 0) }}</p>
                 </div>
                 <div class="text-3xl text-gray-400">→</div>
                 <div class="flex-1 min-w-[150px] bg-orange-50 p-4 rounded-lg text-center border-l-4 border-orange-500">
-                    <p class="text-2xl">🏭</p>
                     <p class="font-semibold text-gray-700 mt-2">Production</p>
                     <p class="text-xl font-bold text-orange-600">{{ $summary['total_production_orders'] }}</p>
                 </div>
                 <div class="text-3xl text-gray-400">→</div>
                 <div class="flex-1 min-w-[150px] bg-green-50 p-4 rounded-lg text-center border-l-4 border-green-500">
-                    <p class="text-2xl">✨</p>
                     <p class="font-semibold text-gray-700 mt-2">Finished Goods</p>
                     <p class="text-xl font-bold text-green-600">{{ number_format($summary['total_finished_goods_in'], 0) }}</p>
                 </div>
                 <div class="text-3xl text-gray-400">→</div>
                 <div class="flex-1 min-w-[150px] bg-purple-50 p-4 rounded-lg text-center border-l-4 border-purple-500">
-                    <p class="text-2xl">🚚</p>
                     <p class="font-semibold text-gray-700 mt-2">Sales Out</p>
                     <p class="text-xl font-bold text-purple-600">{{ number_format($summary['total_finished_goods_out'], 0) }}</p>
                 </div>

@@ -21,7 +21,6 @@ class AdminRolesSeeder extends Seeder
             'admin_seller' => 'Seller Administrator - Manage sales and orders',
             'admin_inventory' => 'Inventory Administrator - Manage inventory and stock',
             'owner' => 'Owner - Full inventory and production oversight',
-            'production_team' => 'Production Team - View inventory and production data'
         ];
 
         foreach ($roles as $roleName => $description) {
@@ -34,7 +33,7 @@ class AdminRolesSeeder extends Seeder
         // Define permissions for each role
         $permissions = [
             // Dashboard permissions
-            'view_dashboard' => ['superadmin', '', 'admin_partner', 'admin_seller', 'admin_inventory', 'owner', 'production_team'],
+            'view_dashboard' => ['superadmin', '', 'admin_partner', 'admin_seller', 'admin_inventory', 'owner'],
             
             // User management
             'manage_users' => ['superadmin'],
@@ -63,9 +62,9 @@ class AdminRolesSeeder extends Seeder
             
             // Inventory management
             'manage_inventory' => ['superadmin', 'admin_inventory', 'owner'],
-            'view_inventory' => ['superadmin', 'admin_inventory', 'owner', 'production_team'],
+            'view_inventory' => ['superadmin', 'admin_inventory', 'owner'],
             'manage_stock' => ['superadmin', 'admin_inventory', 'owner'],
-            'view_stock' => ['superadmin', 'admin_inventory', 'owner', 'production_team'],
+            'view_stock' => ['superadmin', 'admin_inventory', 'owner'],
 
             // Reports and analytics
             'view_reports' => ['superadmin', 'owner'],

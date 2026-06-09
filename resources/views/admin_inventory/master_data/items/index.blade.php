@@ -77,8 +77,8 @@
                             </td>
                             <td class="px-6 py-4">
                                 <div class="text-xs text-slate-600 max-w-xs">
-                                    <p class="truncate font-semibold mb-1" title="{{ $item->description_item }}">{{ $item->description_item ?: '-' }}</p>
-                                    <p class="truncate text-slate-400" title="{{ $item->ingredient_item }}">Komposisi: {{ $item->ingredient_item ?: '-' }}</p>
+                                    <p class="font-semibold mb-1 whitespace-normal break-words" title="{{ $item->description_item }}">{{ $item->description_item ?: '-' }}</p>
+                                    <p class="text-slate-400 whitespace-normal break-words" title="{{ $item->ingredient_item }}">Komposisi: {{ $item->ingredient_item ?: '-' }}</p>
                                 </div>
                             </td>
                             <td class="px-6 py-4">

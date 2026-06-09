@@ -103,15 +103,15 @@ class MasterItemBillOfMaterialsSeeder extends Seeder
                         'updated_at'        => $now,
                     ];
 
-                    // 2. Pump
-                    $bomRecords[] = [
-                        'item_id'           => $item->item_id,
-                        'item_raw_id'       => $config['pump_id'],
-                        'quantity_required' => 1.0,
-                        'yield_percentage'  => 100.00,
-                        'created_at'        => $now,
-                        'updated_at'        => $now,
-                    ];
+                    // // 2. Pump
+                    // $bomRecords[] = [
+                    //     'item_id'           => $item->item_id,
+                    //     'item_raw_id'       => $config['pump_id'],
+                    //     'quantity_required' => 1.0,
+                    //     'yield_percentage'  => 100.00,
+                    //     'created_at'        => $now,
+                    //     'updated_at'        => $now,
+                    // ];
 
                     // 3. Sticker (if mapping exists)
                     if (isset($stickerMap[$brand][$size])) {

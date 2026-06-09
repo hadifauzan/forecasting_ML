@@ -195,8 +195,6 @@ class User extends Authenticatable
                 return 'Inventory Admin';
             case 'owner':
                 return 'Owner';
-            case 'production_team':
-                return 'Production Team';
             default:
                 return 'Admin';
         }
@@ -209,7 +207,7 @@ class User extends Authenticatable
     {
         // Check for generic 'admin' role - should match all admin types
         if ($roleName === 'admin') {
-            return in_array($this->role_id, [5, 7, 8, 9, 10, 11, 12]);
+            return in_array($this->role_id, [5, 7, 8, 9, 10, 11]);
         }
 
         $roleName = strtolower((string) $roleName);
@@ -235,7 +233,6 @@ class User extends Authenticatable
             9 => 'admin_seller',
             10 => 'admin_inventory',
             11 => 'owner',
-            12 => 'production_team',
             default => null,
         };
     }

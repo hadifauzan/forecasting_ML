@@ -57,8 +57,3 @@ item_raw_id,material_name,unit,purchase_price,current_stock,lead_time_days,buffe
 56,Stiker BB 30ml,lembar,550,150,2,1,CV. Grafis Mandiri,2024-11-27 08:00:00,2026-04-17 09:58:13,
 57,Stiker BB 100ml,lembar,700,25,2,0,CV. Grafis Mandiri,2024-05-04 08:00:00,2026-04-17 09:58:13,
 58,Stiker BB 250ml,lembar,900,0,2,0,CV. Grafis Mandiri,2024-12-11 08:00:00,2026-04-17 09:58:13,
-59,Pump 10ml,pcs,1500,551,3,60,PT. Kemasan Prima,2024-01-03 08:00:00,2026-04-17 09:58:13,
-60,Pump 15ml,pcs,1650,551,3,49,PT. Kemasan Prima,2024-03-21 08:00:00,2026-04-17 09:58:13,
-61,Pump 30ml,pcs,1800,551,3,2,PT. Kemasan Prima,2024-09-01 08:00:00,2026-04-17 09:58:13,
-62,Pump 100ml,pcs,2800,50,3,1,PT. Kemasan Prima,2024-10-18 08:00:00,2026-04-17 09:58:13,
-63,Pump 200ml,pcs,3500,20,3,1,PT. Kemasan Prima,2024-06-07 08:00:00,2026-04-17 09:58:13,
